@@ -6,7 +6,7 @@
 // (it only lets people send mail *to you*), so it is fine that it ends up in the built site.
 
 const ENDPOINT = 'https://api.web3forms.com/submit';
-const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_KEY;
+const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
 
 export async function sendMessage({ name, email, subject, budget, message, botcheck }) {
   // Honeypot: real visitors never fill this hidden field, bots usually do. Pretend it worked.
