@@ -222,7 +222,7 @@ export default function Contact() {
             aria-busy={btnState === 'loading'}
           >
             <span className="btn-layer btn-layer--default" aria-hidden={btnState !== 'default'}>
-              Send Message →
+              Send message →
             </span>
             <span className="btn-layer btn-layer--loading" aria-hidden={btnState !== 'loading'}>
               <span className="btn-progress" aria-hidden="true" />
