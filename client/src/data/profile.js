@@ -334,16 +334,10 @@ const profile = {
 
   experience: [
     {
-      role: 'Full Stack Developer, Personal & Academic Projects',
+      role: 'Full Stack Developer, Academic & Personal Projects',
       years: '2023–2026',
       description:
-        "Built full-stack web and software projects for coursework and on my own. The work covers frontend interfaces, backend APIs, databases, authentication, dashboards and application logic.",
-    },
-    {
-      role: 'Full Stack / Application Developer, Academic Projects (BS Computer Science)',
-      years: '2023–2026',
-      description:
-        "Built web applications, data dashboards, management systems and a Flutter mobile app with a web admin panel, using several languages and frameworks.",
+        'Built web applications, data dashboards, management systems and a Flutter mobile app with a web admin panel, for my BS Computer Science coursework and on my own. The work covers frontend interfaces, backend APIs, databases, authentication and application logic.',
     },
   ],
 };
