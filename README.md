@@ -1,55 +1,91 @@
-# Shabi Mughal: Portfolio
+# Shabi Mughal — Portfolio
+**Live Site:** [https://shabimughal.dev](https://shabimughal.dev)
 
-Live at **[shabimughal.dev](https://shabimughal.dev)**.
+A personal portfolio showcasing my journey as a Full Stack Software Engineer, technical skills, and projects. Designed with a minimalist aesthetic, it highlights my approach to software development, user experience, and building practical digital solutions for web and mobile platforms.
 
-A static portfolio built with **React 18, Vite and React Router**. There is no backend or database.
+---
 
-- **Content:** your bio, skills, certifications and testimonials are in `client/src/data/profile.js`. Every project is in `client/src/data/portfolioData.js`. Edit a file and the site updates on the next build.
-- **Contact form:** the form posts straight from the browser to [Web3Forms](https://web3forms.com), which emails the message to you.
+## ⚡ Overview & Architecture
 
-## Structure
+* **Frontend:** React 18, Vite, React Router
+* **Styling:** Custom CSS design system with dynamic variables (Light/Dark mode)
+* **Architecture:** 100% static client-side single-page application (SPA) with zero backend/database dependencies
+* **Contact Form:** Serverless integration via Web3Forms API with client-side honeypot spam protection
+* **Hosting & CDN:** Deployed on Vercel's global edge network with custom DNS on `shabimughal.dev`
 
-```
+---
+
+## 📁 Repository Structure
+
+```text
 client/
-  index.html                 page title, description, link-preview tags, structured data
-  .env.example               VITE_WEB3FORMS_KEY (copy to .env)
-  public/                    images, certificates, resume PDF, favicon,
-                             og-image.png, sitemap.xml, robots.txt, _redirects
-  src/
-    data/
-      profile.js             bio, skills, services, certifications, testimonials, links
-      portfolioData.js       all projects (+ getProjectBySlug / getNeighbors helpers)
-      gallery.js, covers.js  project screenshots and cover images
-    lib/sendMessage.js       contact form -> Web3Forms
-    components/, hooks/, pages/, index.css
+├── index.html                 # Entry HTML, SEO meta tags, OpenGraph cards
+├── .env.example               # Environment template (VITE_WEB3FORMS_ACCESS_KEY)
+├── vercel.json                # Single-page application route rewrites
+├── public/                    # Static assets (images, certificates, resume PDF, sitemap)
+└── src/
+    ├── data/                  # Content data layer
+    │   ├── profile.js         # Bio, skills, testimonials, external links
+    │   ├── portfolioData.js   # Project records and routing helpers
+    │   └── gallery.js         # Screenshots and media assets
+    ├── lib/
+    │   └── sendMessage.js     # Serverless form submission handler
+    ├── components/            # Reusable UI components (buttons, inputs, cards)
+    ├── pages/                 # Route views (Home, About, Projects, Contact)
+    └── index.css              # Global styles and theme variable definitions
 ```
 
-## Run it
+---
 
-```bash
-cd client
-npm install
-cp .env.example .env     # then paste your Web3Forms access key
-npm run dev              # http://localhost:5173
-npm run build            # production build in client/dist
-```
+## 🛠️ Local Development
 
-## Contact form setup
+To run this project locally:
 
-1. Go to https://web3forms.com, enter the email where you want messages, and copy the access key they send you.
-2. Put it in `client/.env` as `VITE_WEB3FORMS_KEY=...`.
-3. On your host (Netlify, Vercel, Cloudflare Pages), add the same variable in the environment settings and redeploy. The `.env` file is not uploaded.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/shabicreations033/shabimughal.dev.git
+   cd shabimughal.dev/client
+   ```
 
-The key is public by design, since it can only send mail to you. A hidden honeypot field filters out simple bots.
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Adding a project
+3. **Configure Environment Variables:**
+   Create a `.env` file in the `client/` folder:
+   ```bash
+   cp .env.example .env
+   ```
+   Add your Web3Forms access key:
+   ```env
+   VITE_WEB3FORMS_ACCESS_KEY=your_access_key_here
+   ```
 
-Add an entry to the array in `client/src/data/portfolioData.js`. Copy an existing one and give it a unique `slug` and an `order`. Add a cover in `data/covers.js` and screenshots in `data/gallery.js` if you have them. Then add the new `/projects/<slug>` address to `public/sitemap.xml`.
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-## Deploying
+5. **Build for production:**
+   ```bash
+   npm run build
+   ```
+   Outputs the compiled, optimized bundle to `client/dist`.
 
-Any static host works. The build command is `npm run build` and the publish folder is `client/dist`. The site uses client-side routes, so the host needs a single-page-app fallback. Netlify reads `public/_redirects` (`/* /index.html 200`) and Vercel does this on its own.
+---
 
-## Search and link previews
+## 🚀 Deployment
 
-`index.html` holds the title, description, Open Graph and Twitter tags and the structured data. Preview image: `public/og-image.png` (1200x630). If you change the domain, update the URLs in `index.html`, `public/sitemap.xml` and `public/robots.txt`.
+The site is configured for continuous deployment on **Vercel**:
+* **Root Directory:** `client`
+* **Build Command:** `npm run build`
+* **Output Directory:** `dist`
+* **Routing:** Handled via `client/vercel.json` rewrites to support direct page refreshes.
+
+---
+
+## 📄 License
+
+This project is open-source under the [MIT License](LICENSE).
