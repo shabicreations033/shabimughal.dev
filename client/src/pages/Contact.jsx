@@ -122,7 +122,7 @@ export default function Contact() {
           <Mask>Let's talk about the opportunity.</Mask>
         </Reveal>
         <Reveal as="p" style={{ color: 'var(--ink-soft)', fontSize: '16px', maxWidth: '56ch', margin: 0 }}>
-          Fill out the form or reach out directly — I typically reply within a couple of days.
+          Fill out the form or reach out directly. I usually reply within a couple of days.
         </Reveal>
       </section>
 

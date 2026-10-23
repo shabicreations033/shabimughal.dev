@@ -6,20 +6,17 @@ const profile = {
   name: 'Shabi Mughal',
   title: 'Full Stack Software Engineer',
   tagline: 'Bold Ideas, Flawless Execution',
-  bio: `Full Stack Software Engineer bridging the gap between complex system architecture and user-facing application
-development. I specialize in architecting scalable platforms across web and mobile, engineering secure
-core systems, and extracting actionable insights from data. I approach engineering with a focus on
-performance and reliability, driven to deliver robust solutions that solve complex real-world challenges.`,
+  bio: `Full Stack Software Engineer. I build web and mobile platforms, secure core systems and data dashboards, and I focus on keeping them fast and reliable.`,
   location: 'Gujranwala, Pakistan',
   // Shown next to the location, plus a live clock, so remote recruiters can see working hours.
   timezone: { label: 'PKT (UTC+5)', iana: 'Asia/Karachi' },
-  availability: 'I am currently open to new full-time opportunities and excited to join a collaborative team building impactful products.',
+  availability: "I am open to full-time roles with a team that ships real products.",
 
-  aboutHeadline: "I'm Shabi — a Full Stack Software Engineer who builds scalable products across web, mobile, and core system architectures.",
+  aboutHeadline: "I'm Shabi, a Full Stack Software Engineer building web apps, mobile apps and core systems.",
   aboutBio: [
-    "I transform complex challenges into intuitive, real-world applications by bridging the gap between high-level user interfaces and robust, low-level logic. Whether I am architecting a full-stack platform, analyzing data, or developing core algorithms, my focus is on delivering complete, end-to-end solutions.",
-    "While my expertise spans modern web frameworks, database architectures, and data analysis, my true strength is adaptable problem-solving. I don't just rely on one set of tools; I evaluate the unique needs of each project to design secure, efficient systems from the ground up.",
-    "Ultimately, I am driven by a passion for clean, maintainable engineering. My goal is to bring reliable digital tools to life that solve actual business challenges while providing a seamless experience for the end user.",
+    "I build complete applications, from the React interface down to the database and the algorithms underneath. Some projects are full-stack platforms, some are data analysis and some are core algorithms in C++. I take each one from the first design to a working product.",
+    "My work covers web frameworks, database design and data analysis. I don't tie myself to one set of tools. I look at what each project needs and design a secure, efficient system around that.",
+    "I like clean, maintainable code. I want the software I build to solve a real business problem and be easy for the person using it.",
   ],
   // TODO: replace these with your real details
   email: 'hi.shabimughal@gmail.com',
@@ -65,56 +62,56 @@ performance and reliability, driven to deliver robust solutions that solve compl
   // Shown on the Services page. Each example links to a project page by its slug
   // (see server/seed/projects.data.js).
   servicesIntro:
-    'From first idea to a deployed product — web, mobile, data, and core systems — built with clean architecture and a focus on reliability.',
+    "Web, mobile, data and core systems, from the first idea to a deployed product. I keep the architecture clean and the code reliable.",
   services: [
     {
       title: 'Full Stack Web Applications',
       description:
-        'End-to-end web apps on the MERN stack: responsive React interfaces, Node and Express APIs, and MongoDB databases, delivered as one coherent product.',
+        "MERN stack apps: responsive React interfaces, Node and Express APIs and MongoDB databases, built and shipped as one product.",
       tags: ['React.js', 'Node.js', 'Express.js', 'MongoDB'],
       examples: [{ label: 'TechFix', slug: 'techfix-accounting-system' }],
     },
     {
       title: 'Mobile App Development',
       description:
-        'Cross-platform apps in Flutter, backed by Firebase for authentication, live data, and storage, with maps and location wherever the product needs them.',
+        "Cross-platform apps in Flutter, with Firebase for authentication, live data and storage. Maps and location where the product needs them.",
       tags: ['Flutter', 'Dart', 'Firebase', 'Google Maps API'],
       examples: [{ label: 'TaskPoint', slug: 'taskpoint-labour-marketplace' }],
     },
     {
       title: 'REST APIs & Backend Systems',
       description:
-        'Secure, well-structured backends: RESTful APIs, authentication and authorization, and database design that stays maintainable as your product grows.',
+        "RESTful APIs, authentication and authorization, and database design that stays easy to maintain as the product grows.",
       tags: ['REST APIs', 'Authentication', 'MongoDB', 'Node.js'],
       examples: [{ label: 'AI Warehouse', slug: 'ai-smart-warehouse-delivery-management' }],
     },
     {
       title: 'Dashboards & Data Visualization',
       description:
-        'Raw data turned into clear, interactive dashboards and analyses, so decisions are made on what the numbers actually show.',
+        "Interactive dashboards and analyses that turn raw data into charts you can read, so decisions rest on what the numbers show.",
       tags: ['Chart.js', 'Python', 'Data Analysis'],
       examples: [{ label: 'Social Dashboard', slug: 'social-media-analytical-dashboard' }],
     },
     {
       title: 'Business & Management Systems',
       description:
-        'Custom CRUD-based tools such as accounting, delivery, and inventory-style management, with admin panels and secure sign-in built in.',
+        "Custom CRUD tools for accounting, delivery and inventory, with admin panels and secure sign-in.",
       tags: ['CRUD Apps', 'Admin Panels', 'Authentication & Authorization'],
       examples: [{ label: 'TechFix', slug: 'techfix-accounting-system' }],
     },
     {
       title: 'Secure & Core Systems Engineering',
       description:
-        'Algorithm-heavy and security-focused software: cryptography, compiler components, and operating-systems logic written in C++ and Python.',
+        "Algorithm-heavy and security-focused software: cryptography, compiler components and operating-systems logic in C++ and Python.",
       tags: ['C++', 'Python', 'Cryptography', 'Algorithms'],
       examples: [{ label: 'SafeState', slug: 'safestate-cryptography-suite' }],
     },
   ],
   process: [
-    { title: 'Discuss', description: 'We align on goals, scope, and timeline before any code is written.' },
-    { title: 'Design', description: 'I plan the architecture, data model, and interface so the build stays clean.' },
-    { title: 'Build', description: 'Iterative development with regular updates, version-controlled in Git.' },
-    { title: 'Deliver', description: 'Deployment and handover, so you can run and extend what was built.' },
+    { title: 'Discuss', description: "We agree on goals, scope and timeline before I write any code." },
+    { title: 'Design', description: "I plan the architecture, data model and interface first." },
+    { title: 'Build', description: "I build in small steps, share regular updates and keep everything in Git." },
+    { title: 'Deliver', description: "I deploy the project and hand it over so you can run and extend it." },
   ],
 
   // Certifications: shown as the carousel on the Home page and as the list on the About page.
@@ -281,7 +278,7 @@ performance and reliability, driven to deliver robust solutions that solve compl
     {
       topic: "Secure application logic",
       quote:
-        "What impressed me about Shoaib’s work on TaskPoint was his focus on actual user requirements. Implementing automated CNIC verification and live SOS logging shows he thinks beyond just writing code—he thinks about trust and safety in a production environment. He builds software that solves actual problems.",
+        "What impressed me about Shoaib’s work on TaskPoint was his focus on actual user requirements. Implementing automated CNIC verification and live SOS logging shows he thinks beyond just writing code. He thinks about trust and safety in a production environment. He builds software that solves actual problems.",
       name: "Prof. Adnan Akram",
       role: "FYP Evaluator",
     },
@@ -326,27 +323,27 @@ performance and reliability, driven to deliver robust solutions that solve compl
     {
       institution: 'University of Central Punjab',
       degree: 'BS Computer Science',
-      years: '2023 — 2026',
+      years: '2023–2026',
     },
     {
       institution: 'Punjab Group of Colleges',
       degree: 'ICS Statistics',
-      years: '2020 — 2022',
+      years: '2020–2022',
     },
   ],
 
   experience: [
     {
-      role: 'Full Stack Developer — Personal & Academic Projects',
-      years: '2023 — 2026',
+      role: 'Full Stack Developer, Personal & Academic Projects',
+      years: '2023–2026',
       description:
-        'Developed full-stack web and software projects as part of academic coursework and personal development. Worked across frontend interfaces, backend APIs, databases, authentication, dashboards, and application logic while gaining practical experience with modern development technologies.',
+        "Built full-stack web and software projects for coursework and on my own. The work covers frontend interfaces, backend APIs, databases, authentication, dashboards and application logic.",
     },
     {
-      role: 'Full Stack / Application Developer — Academic Projects (BS Computer Science)',
-      years: '2023 — 2026',
+      role: 'Full Stack / Application Developer, Academic Projects (BS Computer Science)',
+      years: '2023–2026',
       description:
-        'Designed and developed software applications using different programming languages and frameworks, including web applications, data-driven dashboards, management systems, and a Flutter-based mobile application with a web-based administration system.',
+        "Built web applications, data dashboards, management systems and a Flutter mobile app with a web admin panel, using several languages and frameworks.",
     },
   ],
 };

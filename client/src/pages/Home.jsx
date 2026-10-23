@@ -77,8 +77,7 @@ export default function Home() {
 
       <Reveal as="section" className="intro wrap">
         <h2><Mask>
-          I architect scalable platforms across web and mobile — bridging complex system
-          design with secure, user-facing applications.
+          I build web and mobile platforms, and I design the secure systems behind them.
         </Mask></h2>
         <div className="intro-meta">
           <dl>
