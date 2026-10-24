@@ -6,6 +6,7 @@ import PageCurtain from './components/PageCurtain';
 import ScrollProgress from './components/ScrollProgress';
 import Cursor from './components/Cursor';
 import PageTransition from './components/PageTransition';
+import Seo from './components/Seo';
 import useSmoothScroll from './hooks/useSmoothScroll';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -47,6 +48,7 @@ export default function App() {
 function NotFound() {
   return (
     <div className="wrap state-msg">
+      <Seo title="Page not found | Shabi Mughal" description="This page does not exist." noindex />
       <h1 style={{ fontSize: '48px', marginBottom: '12px' }}>Page not found</h1>
       <p>The page you're looking for doesn't exist.</p>
     </div>

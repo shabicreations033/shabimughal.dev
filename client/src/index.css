@@ -686,7 +686,7 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
   display: block;
   position: absolute;
   inset: 0;
-  background-image: url("/shabi-hero-dark.png");
+  background-image: url("/shabi-hero-dark.webp");
   background-size: cover;
   background-position: top center;
 }

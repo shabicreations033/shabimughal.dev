@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Seo from '../components/Seo';
 import Reveal from '../components/Reveal';
 import Mask from '../components/Mask';
 import { certLink } from '../components/CertCarousel';
@@ -24,7 +25,7 @@ const LANGUAGE_ICONS = {
 
 function TechIcon({ name }) {
   const slug = LANGUAGE_ICONS[name];
-  return <img src={`/icons/${slug}.png`} alt="" aria-hidden="true" className="lang-float-icon" />;
+  return <img src={`/icons/${slug}.png`} alt="" aria-hidden="true" className="lang-float-icon" loading="lazy" decoding="async" />;
 }
 
 const skillGroups = [
@@ -50,6 +51,10 @@ const MARQUEE_ITEMS = [...new Set([
 export default function About() {
   return (
     <>
+      <Seo
+        title={`About | ${profile.name}, ${profile.title}`}
+        description={`Skills, education, certifications and experience of ${profile.name}, a ${profile.title} based in ${profile.location}.`}
+      />
       <section className="wrap" style={{ paddingBottom: 0 }}>
         <Reveal as="p" className="eyebrow-plain">
           About
@@ -57,7 +62,8 @@ export default function About() {
         <Reveal as="div" className="split-block">
           <div className="about-portrait">
             <img
-              src="/shabi-about-nobg.png"
+              src="/shabi-about-nobg.webp"
+              decoding="async"
               alt="Shabi Mughal"
               style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
             />

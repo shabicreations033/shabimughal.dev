@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { allProjects as projects } from '../data/portfolioData';
+import Seo from '../components/Seo';
 import Reveal from '../components/Reveal';
 import Mask from '../components/Mask';
 import { coverFor } from '../data/covers';
@@ -20,6 +21,10 @@ const SHORT_NAMES = {
 export default function Projects() {
   return (
     <>
+      <Seo
+        title="Projects | Shabi Mughal"
+        description={`${projects.length} projects by Shabi Mughal: web platforms, a Flutter mobile app, secure backends, data dashboards and core systems in C++.`}
+      />
       <section className="wrap" style={{ paddingBottom: 0 }}>
         <Reveal as="p" className="eyebrow-plain">
           Projects

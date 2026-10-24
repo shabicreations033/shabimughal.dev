@@ -5,6 +5,7 @@ import Reveal from '../components/Reveal';
 import RollingNumber from '../components/RollingNumber';
 import TestimonialSlider from '../components/TestimonialSlider';
 import CertCarousel from '../components/CertCarousel';
+import Seo from '../components/Seo';
 import Mask from '../components/Mask';
 import SocialIcons from '../components/SocialIcons';
 import { whenCurtainLifts } from '../components/PageCurtain';
@@ -38,6 +39,10 @@ export default function Home() {
 
   return (
     <>
+      <Seo
+        title={`${profile.name} | ${profile.title}`}
+        description="Portfolio of Shabi Mughal, a Full Stack Software Engineer building web and mobile products with React, Node.js, MongoDB, Flutter and Firebase."
+      />
       <section className={`hero ${ready ? 'is-ready' : ''}`}>
         <div className="wrap hero-stage">
           <div className="hero-watermark">
@@ -59,7 +64,7 @@ export default function Home() {
           </h1>
 
           <div className="hero-portrait">
-            <img src="/shabi-hero-light.png" alt="Shabi Mughal" />
+            <img src="/shabi-hero-light.webp" alt="Shabi Mughal" fetchPriority="high" decoding="async" />
           </div>
 
           <SocialIcons />

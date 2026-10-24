@@ -4,6 +4,7 @@
 
 const profile = {
   name: 'Shabi Mughal',
+  siteUrl: 'https://shabimughal.dev',
   title: 'Full Stack Software Engineer',
   tagline: 'Bold Ideas, Flawless Execution',
   bio: `Full Stack Software Engineer. I build web and mobile platforms, secure core systems and data dashboards, and I focus on keeping them fast and reliable.`,

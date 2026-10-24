@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Seo from '../components/Seo';
 import Reveal from '../components/Reveal';
 import Mask from '../components/Mask';
 import SocialIcons from '../components/SocialIcons';
@@ -110,6 +111,10 @@ export default function Contact() {
 
   return (
     <>
+      <Seo
+        title="Contact | Shabi Mughal"
+        description="Get in touch with Shabi Mughal about a full-time role, a freelance project or a collaboration."
+      />
       <section className="wrap" style={{ paddingBottom: 0 }}>
         <Reveal as="p" className="eyebrow-plain">
           Contact

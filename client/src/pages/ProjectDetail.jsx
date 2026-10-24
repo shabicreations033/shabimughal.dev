@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { getProjectBySlug, getNeighbors } from '../data/portfolioData';
+import Seo from '../components/Seo';
 import Reveal from '../components/Reveal';
 import Mask from '../components/Mask';
 import { coverFor } from '../data/covers';
@@ -14,7 +15,8 @@ export default function ProjectDetail() {
   if (!project)
     return (
       <div className="wrap state-msg">
-        <p>Couldn't find that project.</p>
+        <Seo title="Project not found | Shabi Mughal" description="This project does not exist." noindex />
+        <h1 style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>Couldn't find that project.</h1>
         <Link to="/projects" className="intro-cta" style={{ marginTop: '16px', display: 'inline-flex' }}>
           ← Back to all projects
         </Link>
@@ -23,6 +25,7 @@ export default function ProjectDetail() {
 
   return (
     <>
+      <Seo title={`${project.title} | Shabi Mughal`} description={project.shortDescription} />
       <section className="wrap pd-hero">
         <Reveal as="p" className="eyebrow-plain">
           Case study
