@@ -1,4 +1,4 @@
-import { Analytics } from "@vercel/analytics/next"
+import { inject } from '@vercel/analytics';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Header from './components/Header';
@@ -14,6 +14,9 @@ import About from './pages/About';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Contact from './pages/Contact';
+
+// Start Vercel Analytics tracking
+inject();
 
 export default function App() {
   const location = useLocation();
