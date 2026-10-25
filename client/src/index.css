@@ -84,7 +84,7 @@
   --font-display: var(--display-family);
   --font-body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
 
-  --container: 77.5rem;
+  --container: calc(77.5rem + max(0px, 100vw - 1440px) * 0.12);
   --gutter: clamp(1.25rem, 5vw, 4rem);
   /* Minimum comfortable touch target (WCAG 2.5.5 / Apple HIG) */
   --tap: 2.75rem;
@@ -132,11 +132,19 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
-/* Large / 4K screens: everything is sized in rem, so growing the root font size scales the whole layout
-   (type, spacing, container) together instead of leaving a small column in the middle of the screen.
-   1920px and below keep the normal 16px. */
-@media (min-width: 1920px) {
-  html { font-size: calc(1rem + (100vw - 1920px) * 0.004); }
+/* Large screens (24-inch monitors, 4K, ultra-wide): everything is sized in rem, so growing the root font size
+   scales the whole layout (type, spacing, container) together instead of leaving a small column in the middle
+   of the screen. The scale grows with the screen WIDTH from 1440px up, but it is also capped by the screen
+   HEIGHT, so a wide but short screen (for example 2560x1080 ultra-wide) does not blow the hero past the fold.
+   1440x900 and smaller screens keep the normal 16px.
+     1920x1080 -> ~18px   2560x1440 -> ~21px   3440x1440 -> ~25px   3840x2160 -> ~27px */
+@media (min-width: 1440px) {
+  html {
+    font-size: max(
+      100%,
+      min(calc(100% + (100vw - 1440px) * 0.0045), calc(100% + (100vh - 900px) * 0.0167))
+    );
+  }
 }
 
 h1,
