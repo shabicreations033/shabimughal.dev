@@ -84,7 +84,7 @@
   --font-display: var(--display-family);
   --font-body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
 
-  --container: 1680px; /* global content cap: on wider screens the site stays a centred 1440px column */
+  --container: 1440px; /* global content cap: on wider screens the site stays a centred 1440px column */
   --gutter: clamp(1.25rem, 5vw, 4rem);
   /* Minimum comfortable touch target (WCAG 2.5.5 / Apple HIG) */
   --tap: 2.75rem;
@@ -557,11 +557,8 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
   overflow: hidden;
 }
 .hero-stage {
-  /* Title (left) and tagline (right) share one size and one bottom line */
-  --hero-fs: clamp(2.125rem, 3.4vw, 4.25rem);
-  --hero-base: 7.5rem;
   position: relative;
-  min-height: clamp(34rem, 78vh, 60rem);
+  min-height: 78vh;
   display: grid;
   grid-template-columns: 1fr;
   isolation: isolate;
@@ -613,19 +610,20 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
 .hero-name {
   grid-column: 1;
   grid-row: 1;
-  align-self: end;
-  margin-bottom: var(--hero-base);
+  align-self: center;
+  transform: translateY(70px);
   font-family: var(--font-display);
-  font-size: var(--hero-fs);
+  font-size: clamp(2.125rem, 6.2vw, 5.75rem);
   font-weight: var(--fw-display);
   letter-spacing: -0.025em;
-  line-height: 1.05;
+  line-height: 1.02;
   white-space: nowrap;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   overflow: visible;
+  margin: 0;
   color: var(--bg);
   mix-blend-mode: difference;
 }
@@ -663,7 +661,7 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
   grid-row: 1;
   justify-self: center;
   align-self: end;
-  width: min(46vw, 46rem);
+  width: min(52vw, 40.625rem);
   margin-right: 6%;
   transform: translateY(-55px);
   aspect-ratio: 6 / 5;
@@ -767,7 +765,7 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
 .hero-role {
   position: absolute;
   right: 0;
-  bottom: var(--hero-base);
+  bottom: 7.5rem;
   text-align: right;
   z-index: 3;
   margin: 0;
@@ -789,10 +787,10 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
   font-weight: 500;
 }
 .hero-role p:last-child {
-  font-size: var(--hero-fs);
+  font-size: clamp(1.5rem, 3.6vw, 2.5rem);
   font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   margin: 0;
 }
 
@@ -1887,12 +1885,6 @@ section {
   }
   .hero-stage {
     display: block;
-  }
-  .hero-name {
-    margin-bottom: 0;
-  }
-  .hero-role p:last-child {
-    font-size: calc(var(--hero-fs) * 0.75);
   }
   .hero-portrait {
     width: 70vw;
