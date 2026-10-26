@@ -84,7 +84,7 @@
   --font-display: var(--display-family);
   --font-body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
 
-  --container: calc(77.5rem + max(0px, 100vw - 1440px) * 0.12);
+  --container: 1440px; /* global content cap: on wider screens the site stays a centred 1440px column */
   --gutter: clamp(1.25rem, 5vw, 4rem);
   /* Minimum comfortable touch target (WCAG 2.5.5 / Apple HIG) */
   --tap: 2.75rem;
@@ -132,20 +132,6 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
-/* Large screens (24-inch monitors, 4K, ultra-wide): everything is sized in rem, so growing the root font size
-   scales the whole layout (type, spacing, container) together instead of leaving a small column in the middle
-   of the screen. The scale grows with the screen WIDTH from 1440px up, but it is also capped by the screen
-   HEIGHT, so a wide but short screen (for example 2560x1080 ultra-wide) does not blow the hero past the fold.
-   1440x900 and smaller screens keep the normal 16px.
-     1920x1080 -> ~18px   2560x1440 -> ~21px   3440x1440 -> ~25px   3840x2160 -> ~27px */
-@media (min-width: 1440px) {
-  html {
-    font-size: max(
-      100%,
-      min(calc(100% + (100vw - 1440px) * 0.0045), calc(100% + (100vh - 900px) * 0.0167))
-    );
-  }
-}
 
 h1,
 h2,
@@ -188,7 +174,15 @@ body {
 
 img {
   max-width: 100%;
+  height: auto;
   display: block;
+}
+
+/* The page area is a positioning context, so anything absolutely placed inside it stays inside the page
+   instead of drifting to the edge of a very wide screen. */
+main {
+  position: relative;
+  width: 100%;
 }
 a {
   color: inherit;
@@ -204,7 +198,8 @@ button {
   cursor: pointer;
 }
 
-.wrap {
+.wrap,
+.container {
   max-width: var(--container);
   margin: 0 auto;
   padding-left: var(--gutter);
@@ -815,7 +810,7 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
 
 /* ===================== Section rhythm ===================== */
 section {
-  padding: 6rem 0;
+  padding: clamp(3.5rem, 2rem + 4vw, 6rem) 0;
 }
 .section-head {
   display: flex;
@@ -2529,7 +2524,8 @@ html.smooth-scroll {
    marker and the percentage riding on the end of the fill. --p (0 to 1) is set by ScrollProgress.jsx. */
 .scroll-progress {
   position: fixed;
-  left: 0.625rem;
+  /* 0.625rem from the left edge of the 1440px column (or of the screen, when it is narrower) */
+  left: max(0.625rem, calc((100vw - var(--container)) / 2 + 0.625rem));
   top: 50%;
   width: 0.25rem;
   height: clamp(13.75rem, 42vh, 26.25rem);
