@@ -8,12 +8,21 @@ import CertCarousel from '../components/CertCarousel';
 import Seo from '../components/Seo';
 import Mask from '../components/Mask';
 import SocialIcons from '../components/SocialIcons';
+import ThemeToggle from '../components/ThemeToggle';
 import { whenCurtainLifts } from '../components/PageCurtain';
 import profile from '../data/profile';
 import { coverFor } from '../data/covers';
 
 export default function Home() {
   const [ready, setReady] = useState(false);
+  // On phones the theme switch lives in the hero (the header only holds the logo and menu).
+  const [phone, setPhone] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 600px)').matches);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 600px)');
+    const on = (e) => setPhone(e.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
   const projects = allProjects.slice(0, 4);
   const totalProjects = allProjects.length;
 
@@ -68,6 +77,11 @@ export default function Home() {
           </div>
 
           <SocialIcons />
+          {phone && (
+            <div className="hero-theme">
+              <ThemeToggle />
+            </div>
+          )}
 
           <div className="hero-role">
             <p className="hero-tagline">// {profile.name}</p>
@@ -144,7 +158,7 @@ export default function Home() {
           <h2><Mask>Services</Mask></h2>
           <span className="count">{String(profile.services.length).padStart(2, '0')} offerings</span>
         </Reveal>
-        <Reveal as="p" style={{ color: 'var(--ink-soft)', fontSize: '16px', maxWidth: '56ch', margin: '0 0 32px' }}>
+        <Reveal as="p" style={{ color: 'var(--ink-soft)', fontSize: '1rem', maxWidth: '56ch', margin: '0 0 32px' }}>
           {profile.servicesIntro}
         </Reveal>
         <Reveal as="div" className="service-grid stagger">

@@ -1,4 +1,3 @@
-import { inject } from '@vercel/analytics';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Header from './components/Header';
@@ -6,6 +5,7 @@ import Footer from './components/Footer';
 import PageCurtain from './components/PageCurtain';
 import ScrollProgress from './components/ScrollProgress';
 import Cursor from './components/Cursor';
+import BackToTop from './components/BackToTop';
 import PageTransition from './components/PageTransition';
 import Seo from './components/Seo';
 import useSmoothScroll from './hooks/useSmoothScroll';
@@ -14,9 +14,6 @@ import About from './pages/About';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Contact from './pages/Contact';
-
-// Start Vercel Analytics tracking
-inject();
 
 export default function App() {
   const location = useLocation();
@@ -45,6 +42,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <BackToTop />
     </>
   );
 }

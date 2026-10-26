@@ -84,7 +84,7 @@
   --font-display: var(--display-family);
   --font-body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
 
-  --container: 1680px; /* global content cap: on wider screens the site stays a centred 1440px column */
+  --container: 105rem; /* 1680px at the default 16px root; grows with the large-screen steps below */ 
   --gutter: clamp(1.25rem, 5vw, 4rem);
   /* Minimum comfortable touch target (WCAG 2.5.5 / Apple HIG) */
   --tap: 2.75rem;
@@ -1895,26 +1895,6 @@ section {
   .project-grid {
     grid-template-columns: 1fr;
   }
-  .hero-social,
-  .hero-role {
-    position: static;
-    margin-top: 2rem;
-  }
-  .hero-stage {
-    display: block;
-  }
-  .hero-name {
-    margin-bottom: 0;
-  }
-  .hero-role p:last-child {
-    font-size: calc(var(--hero-fs) * 0.75);
-    mix-blend-mode: normal;
-    color: var(--ink);
-  }
-  .hero-portrait {
-    width: 70vw;
-    margin: 1.5rem auto 0;
-  }
   .tool-list {
     grid-template-columns: 1fr;
   }
@@ -1971,37 +1951,12 @@ section {
   }
 }
 
-@media (max-width: 900px) {
-  .hero-name {
-    font-size: 7vw;
-    align-items: center;
-    transform: translateY(66vw);
-    mix-blend-mode: normal;
-    color: var(--ink);
-  }
-}
 @media (max-width: 560px) {
   section {
     padding: 3.5rem 0;
   }
-  .hero-name {
-    line-height: 1;
-    font-size: 8.2vw;
-    /* On phones the portrait is too small for the see-through blend to stay legible,
-       so the headline sits in plain ink just under the portrait instead. */
-    transform: translateY(318px);
-    mix-blend-mode: normal;
-    color: var(--ink);
-  }
   .hero {
     padding-top: 2.5rem;
-  }
-  .hero-stage {
-    min-height: auto;
-    padding-bottom: 2rem;
-  }
-  .hero-portrait {
-    width: 82vw;
   }
   .cta-band h2 {
     line-height: 1.05;
@@ -2018,14 +1973,6 @@ section {
   }
 }
 
-@media (max-width: 380px) {
-  .hero-name {
-    font-size: 8.2vw;
-  }
-  .site-header-actions .hero-social {
-    display: none;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -3664,5 +3611,182 @@ html.has-custom-cursor textarea {
   .cert-card:hover,
   .pd-ps-card:hover {
     transform: none;
+  }
+}
+
+/* =====================================================================
+   Device layouts (hero + header). One stylesheet, three compositions:
+   - desktop (1025px and up): title left, portrait centred, tagline right,
+     icons stacked above the tagline. The 1680px container keeps it centred
+     on 2K, 4K and ultrawide screens.
+   - tablet (601px to 1024px): same composition, scaled down, full navigation.
+   - phone (600px and below): portrait on top, icons stacked on its right,
+     title overlapping the portrait's faded base, tagline right-aligned below.
+   ===================================================================== */
+.hero-theme { display: none; }
+
+@media (min-width: 601px) and (max-width: 1024px) {
+  .hero-stage {
+    --hero-fs: clamp(1.75rem, 4.4vw, 2.75rem);
+    --hero-base: 5rem;
+    min-height: clamp(26rem, 58vh, 36rem);
+  }
+  .hero-portrait {
+    width: min(58vw, 32rem);
+  }
+  .hero-watermark-track span {
+    font-size: clamp(2.25rem, 8vw, 4rem);
+  }
+}
+@media (min-width: 701px) and (max-width: 980px) {
+  .nav-links { display: flex; gap: 0.125rem; }
+  .logo-text { display: none; }
+  .nav-toggle { display: none; }
+  .mobile-nav { display: none; }
+  .site-header-actions { gap: 0.625rem; }
+  .site-header-actions .resume-link--header { padding-left: 0.75rem; padding-right: 0.75rem; }
+}
+
+@media (max-width: 600px) {
+  .site-header-actions .hero-social,
+  .site-header-actions .theme-toggle {
+    display: none;
+  }
+  .hero-stage {
+    --hero-fs: clamp(1.875rem, 9vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+    padding-bottom: 1.5rem;
+  }
+  .hero-watermark {
+    order: 0;
+  }
+  .hero-portrait {
+    order: 1;
+    align-self: center;
+    width: min(72vw, 21rem);
+    margin: -1.25rem 0 0;
+    transform: none;
+  }
+  .hero-social {
+    top: 7.5rem;
+    bottom: auto;
+  }
+  .hero-theme {
+    display: block;
+    position: absolute;
+    right: var(--gutter);
+    top: calc(7.5rem + 2 * 2.125rem + 2rem);
+    z-index: 3;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.7s var(--ease) 0.5s, transform 0.7s var(--ease) 0.5s;
+  }
+  .is-ready .hero-theme {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .hero-theme .theme-toggle {
+    width: 2.125rem;
+    height: 2.125rem;
+  }
+  .hero-name {
+    order: 2;
+    align-self: flex-start;
+    margin: -3.25rem 0 0;
+    transform: none;
+  }
+  .hero-role {
+    order: 3;
+    position: static;
+    align-self: flex-end;
+    margin-top: 1.75rem;
+  }
+  .hero-role p:last-child {
+    font-size: calc(var(--hero-fs) * 0.64);
+    mix-blend-mode: normal;
+    color: var(--ink);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-theme { transition: none; opacity: 1; transform: none; }
+}
+
+/* ===================== Back to top ===================== */
+.back-to-top {
+  position: fixed;
+  /* Sits on the right edge of the content column, so on wide screens it stays beside the page, not at the monitor's edge */
+  right: max(1rem, calc((100vw - var(--container)) / 2 + 1rem));
+  bottom: 1.5rem;
+  z-index: 90;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--ink);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    opacity 0.35s var(--ease-soft),
+    transform 0.35s var(--ease-soft),
+    background-color 0.3s var(--ease-soft),
+    border-color 0.3s var(--ease-soft),
+    color 0.3s var(--ease-soft);
+}
+.back-to-top.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.back-to-top:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+.back-to-top:active {
+  transform: scale(0.94);
+}
+.back-to-top:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .back-to-top {
+    right: 1rem;
+    bottom: 1rem;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top { transition: none; transform: none; }
+}
+
+
+/* =====================================================================
+   Large screens. The design is built in rem, so raising the root size scales
+   type, spacing, the hero and the 105rem container together.
+   16px up to 2199px | 18px on 2K and wide-QHD | 20px on 4K and ultrawide
+   ===================================================================== */
+@media (min-width: 2200px) {
+  html { font-size: 112.5%; }
+}
+@media (min-width: 3000px) {
+  html { font-size: 125%; }
+}
+
+/* About page portrait: on phones and tablets it stays a portrait, not a full-width poster */
+@media (max-width: 1024px) {
+  .about-portrait {
+    width: min(100%, 24rem);
+    margin-inline: auto;
   }
 }

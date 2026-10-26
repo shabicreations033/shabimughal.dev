@@ -35,7 +35,7 @@ export default function Projects() {
         >
           <Mask>All projects</Mask>
         </Reveal>
-        <Reveal as="p" style={{ color: 'var(--ink-soft)', fontSize: '16px', maxWidth: '56ch', margin: 0 }}>
+        <Reveal as="p" style={{ color: 'var(--ink-soft)', fontSize: '1rem', maxWidth: '56ch', margin: 0 }}>
           A running list of full-stack, mobile and systems projects: web platforms, secure backends and data applications.
         </Reveal>
       </section>

@@ -73,7 +73,7 @@ export default function About() {
               <Mask>{profile.aboutHeadline}</Mask>
             </Reveal>
             {profile.aboutBio.map((para, i) => (
-              <p key={i} style={{ color: 'var(--ink-soft)', fontSize: '16px', maxWidth: '60ch', marginBottom: '16px' }}>
+              <p key={i} style={{ color: 'var(--ink-soft)', fontSize: '1rem', maxWidth: '60ch', marginBottom: '16px' }}>
                 {para}
               </p>
             ))}
