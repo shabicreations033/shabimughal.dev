@@ -664,7 +664,6 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
   justify-self: center;
   align-self: end;
   width: min(46vw, 46rem);
-  margin-right: 6%;
   transform: translateY(-55px);
   aspect-ratio: 6 / 5;
   z-index: 2;
@@ -672,8 +671,9 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
   overflow: hidden;
   clip-path: inset(100% 0 0 0);
   transition: clip-path 1s var(--ease) 0.2s;
-  -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+  /* Thin, eased fade (last ~16%): the photo dissolves into the page colour of the active theme. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 84%, rgba(0,0,0,.7) 90%, rgba(0,0,0,.3) 95%, rgba(0,0,0,.06) 98.5%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 84%, rgba(0,0,0,.7) 90%, rgba(0,0,0,.3) 95%, rgba(0,0,0,.06) 98.5%, transparent 100%);
 }
 /* Dark theme uses a different photo (lighter sweater) instead of the light
    theme's photo — a light-colored backdrop is what makes the hero-name's
@@ -723,10 +723,13 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
 
 .hero-social {
   position: absolute;
-  left: 0;
-  bottom: 7.5rem;
+  /* Vertical stack on the right, sitting just above the "// Shabi Mughal" tagline.
+     .hero-stage is also .wrap, so inset by the gutter to align with the header edge. */
+  right: var(--gutter);
+  bottom: calc(var(--hero-base) + var(--hero-fs) * 2.1 + 3.5rem);
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 1rem;
   z-index: 3;
   opacity: 0;
@@ -766,18 +769,23 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
 
 .hero-role {
   position: absolute;
-  right: 0;
+  right: var(--gutter);
   bottom: var(--hero-base);
   text-align: right;
-  z-index: 3;
+  /* No z-index / transform / opacity on the wrapper: any of them would isolate the
+     children and the ghost blend below could not see the portrait behind. */
   margin: 0;
+}
+.hero-role p {
+  position: relative;
+  z-index: 3;
   opacity: 0;
   transform: translateY(12px);
   transition:
     opacity 0.7s var(--ease) 0.55s,
     transform 0.7s var(--ease) 0.55s;
 }
-.is-ready .hero-role {
+.is-ready .hero-role p {
   opacity: 1;
   transform: translateY(0);
 }
@@ -794,13 +802,20 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
   letter-spacing: -0.03em;
   line-height: 1.05;
   margin: 0;
+  /* Same ghost effect as the title: the letters invert where they cross the photo. */
+  color: var(--bg);
+  mix-blend-mode: difference;
+}
+[data-theme="dark"] .hero-role p:last-child {
+  color: var(--ink);
 }
 
 .hero-scroll-cue {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1.75rem 0 2.5rem;
+  padding-top: 1.75rem;
+  padding-bottom: 2.5rem;
   font-size: 0.8125rem;
   color: var(--ink-soft);
 }
@@ -1893,6 +1908,8 @@ section {
   }
   .hero-role p:last-child {
     font-size: calc(var(--hero-fs) * 0.75);
+    mix-blend-mode: normal;
+    color: var(--ink);
   }
   .hero-portrait {
     width: 70vw;
@@ -3560,5 +3577,92 @@ html.has-custom-cursor textarea {
   textarea,
   select {
     font-size: max(1rem, 16px);
+  }
+}
+
+/* =====================================================================
+   Motion polish. One quiet system: short rises, soft easing, small hovers.
+   Everything below is switched off for visitors who prefer reduced motion.
+   ===================================================================== */
+:root {
+  --rise: 16px;        /* how far content travels when it appears */
+  --rise-time: 0.7s;
+}
+
+/* Calmer scroll reveals (was 28px / 0.8s) */
+.reveal {
+  transform: translateY(var(--rise));
+  transition:
+    opacity var(--rise-time) var(--ease),
+    transform var(--rise-time) var(--ease);
+}
+.reveal.in-view {
+  transform: translateY(0);
+}
+
+/* Grids and lists: children arrive one after another, a touch quicker and shorter */
+@keyframes riseInSoft {
+  from { opacity: 0; transform: translateY(18px); }
+}
+.reveal.stagger.in-view > * {
+  animation: riseInSoft 0.75s var(--ease) backwards;
+}
+.reveal.stagger.in-view > *:nth-child(2) { animation-delay: 0.07s; }
+.reveal.stagger.in-view > *:nth-child(3) { animation-delay: 0.14s; }
+.reveal.stagger.in-view > *:nth-child(4) { animation-delay: 0.21s; }
+.reveal.stagger.in-view > *:nth-child(5) { animation-delay: 0.28s; }
+.reveal.stagger.in-view > *:nth-child(6) { animation-delay: 0.35s; }
+.reveal.stagger.in-view > *:nth-child(n+7) { animation-delay: 0.42s; }
+
+/* Page-to-page fade */
+.route-fade {
+  animation: routeIn 0.45s var(--ease) both;
+}
+@keyframes routeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Press feedback: buttons settle back down when clicked */
+.cta-btn:active,
+.submit-btn:not(:disabled):active,
+.intro-cta:active,
+.resume-link:active,
+.cert-arrow:not(:disabled):active,
+.theme-toggle:active,
+.hero-social a:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* Visitors who ask for less motion get the finished page, no movement */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal,
+  .reveal.in-view {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .reveal.stagger.in-view > * { animation: none; }
+  .route-fade { animation: none; }
+  .hero-name .word span,
+  .hero-portrait,
+  .hero-social,
+  .hero-role p,
+  .hero-role {
+    transition: none;
+  }
+  .hero-name .word span { transform: none; }
+  .hero-role p,
+  .hero-social { opacity: 1; transform: none; }
+  .cta-btn:hover,
+  .submit-btn:hover,
+  .project-card:hover,
+  .project-row:hover,
+  .service-card:hover,
+  .cert-card:hover,
+  .pd-ps-card:hover {
+    transform: none;
   }
 }
