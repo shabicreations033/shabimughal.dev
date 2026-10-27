@@ -122,6 +122,23 @@ const profile = {
   // (Credly, Simplilearn, n8n, ...), paste its address into `verifyUrl`.
   certifications: [
     {
+      slug: 'cisco-data-science-essentials-python',
+      field: 'Data Science',
+      name: 'Data Science',
+      issuer: 'Cisco Networking Academy',
+      title: 'Data Science Essentials with Python',
+      kind: 'Completion certificate',
+      issued: 'Oct 26, 2026',
+      credentialId: 'f852fd87-1cf2-4c31-ab26-78c06ae05a12',
+      via: 'Cisco Networking Academy',
+      details:
+        'Completion certificate for the Data Science Essentials with Python course, offered by Networking Academy through the Cisco Networking Academy program.',
+      width: 1100,
+      height: 745,
+      verifyUrl: '', // opens the PDF copy; paste the Cisco verification link here if you want a public one
+      viewLabel: 'View certificate ↗',
+    },
+    {
       slug: 'google-ai-essentials',
     field: 'Artificial Intelligence',
       name: 'AI Essentials',
