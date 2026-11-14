@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
+import { startInk } from '../lib/inkReveal';
+import { startInkGL, warmInk } from '../lib/inkShader';
 
 // Theme logic:
 //  - First visit: follow the visitor's Windows / browser colour scheme
@@ -10,11 +12,11 @@ import { flushSync } from 'react-dom';
 //
 // Look: a round button. Light theme shows a dark circle with a moon (click to go
 // dark); dark theme shows a light circle with a sun (click to go light). The
-// moon turns into a sun with rays, and the new theme spreads across the page as
-// a circle that grows out of the button (View Transitions API). Browsers
-// without it, and visitors who prefer reduced motion, just get an instant switch.
-const REVEAL_MS = 800;
-const REVEAL_EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
+// moon turns into a sun with rays, and the new theme bleeds across the page like
+// ink from the button (View Transitions API + the WebGL ink shader in lib/inkShader.js;
+// lib/inkReveal.js is the plain-canvas version used when WebGL2 is missing). Browsers
+// without View Transitions, and visitors who prefer reduced motion, get an instant switch.
+const REVEAL_MS = 2400;
 
 function readSaved() {
   try {
@@ -50,6 +52,13 @@ export default function ThemeToggle() {
     applyTheme(theme);
   }, [theme]);
 
+  // Build the ink's noise texture while the browser is idle, so the first click is instant.
+  useEffect(() => {
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 600));
+    const id = idle(() => warmInk());
+    return () => (window.cancelIdleCallback ? window.cancelIdleCallback(id) : clearTimeout(id));
+  }, []);
+
   // Follow live system changes until the visitor makes their own choice.
   useEffect(() => {
     if (chosen || !window.matchMedia) return undefined;
@@ -58,6 +67,16 @@ export default function ThemeToggle() {
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, [chosen]);
+
+  // Another toggle on the page (the phone hero has its own) may change the theme: stay in step.
+  useEffect(() => {
+    const mo = new MutationObserver(() => {
+      setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+      setChosen(readSaved() !== null);
+    });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => mo.disconnect();
+  }, []);
 
   function toggle(e) {
     if (busy.current) return; // let the current reveal finish before starting another
@@ -80,30 +99,34 @@ export default function ThemeToggle() {
       return;
     }
 
-    // The reveal grows from the centre of the button to the farthest corner of the screen.
+    // The ink starts at the centre of the button and runs to the farthest corner of the screen.
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
-    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
 
     const root = document.documentElement;
     root.classList.add('theme-switching'); // switches the page's own colour fades off for the duration
     busy.current = true;
 
+    const stopInk = startInkGL({ x, y, duration: REVEAL_MS }) || startInk({ x, y, duration: REVEAL_MS + 400 }); // mask is empty until the first frame
+
     const transition = document.startViewTransition(() => {
       flushSync(commit);
     });
 
+    // The browser ends a view transition as soon as the animations on its snapshots end. The
+    // ink is drawn by hand, so give the snapshot a do-nothing animation that lasts as long.
     transition.ready
       .then(() => {
         root.animate(
-          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-          { duration: REVEAL_MS, easing: REVEAL_EASE, pseudoElement: '::view-transition-new(root)' }
+          { opacity: [1, 1] },
+          { duration: REVEAL_MS + 450, pseudoElement: '::view-transition-new(root)' }
         );
       })
       .catch(() => {});
 
     transition.finished.finally(() => {
+      stopInk();
       root.classList.remove('theme-switching');
       busy.current = false;
     });

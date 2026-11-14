@@ -6,6 +6,7 @@ import SocialIcons from '../components/SocialIcons';
 import CustomSelect from '../components/CustomSelect';
 import SmoothInput from '../components/SmoothInput';
 import profile from '../data/profile';
+import ContactCard from '../components/ContactCard';
 import ResumeButton from '../components/ResumeButton';
 import { sendMessage } from '../lib/sendMessage';
 
@@ -133,6 +134,7 @@ export default function Contact() {
 
       <section className="wrap contact-grid">
         <Reveal as="div" className="contact-info">
+          <div className="cc-wrap"><ContactCard /></div>
           <dl>
             <div>
               <dt>Email</dt>

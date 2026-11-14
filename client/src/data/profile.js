@@ -122,6 +122,40 @@ const profile = {
   // (Credly, Simplilearn, n8n, ...), paste its address into `verifyUrl`.
   certifications: [
     {
+      slug: 'nasa-open-science-essentials',
+      field: 'Open Science',
+      name: 'Open Science Essentials',
+      issuer: 'NASA',
+      title: 'Open Science Essentials',
+      kind: 'Certificate of achievement',
+      issued: 'Nov 14, 2026',
+      credentialId: '',
+      via: 'NASA Open Science (TOPS)',
+      details:
+        'Certificate of achievement from NASA for completing the Open Science Essentials curriculum, covering the basics of open science and how to take part in the open science community.',
+      width: 1100,
+      height: 850,
+      verifyUrl: '',
+      viewLabel: 'View certificate ↗',
+    },
+    {
+      slug: 'nasa-open-science-101',
+      field: 'Open Science',
+      name: 'Open Science 101',
+      issuer: 'NASA',
+      title: 'Open Science 101',
+      kind: 'Certificate of achievement',
+      issued: 'Nov 13, 2026',
+      credentialId: '',
+      via: 'NASA Open Science (TOPS)',
+      details:
+        'Certificate of achievement from NASA for completing the Open Science 101 curriculum, awarded by Dr. Nicola Fox, NASA Associate Administrator, Science Mission Directorate.',
+      width: 1100,
+      height: 850,
+      verifyUrl: '',
+      viewLabel: 'View certificate ↗',
+    },
+    {
       slug: 'cisco-data-science-essentials-python',
       field: 'Data Science',
       name: 'Data Science',
