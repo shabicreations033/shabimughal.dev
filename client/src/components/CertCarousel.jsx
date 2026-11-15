@@ -24,6 +24,17 @@ function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+// If a resized copy of a certificate is missing, drop the srcset / AVIF source and show the original.
+function fallbackImage(img, original) {
+  if (img.dataset.fallback) return;
+  img.dataset.fallback = '1';
+  const picture = img.parentElement;
+  if (picture && picture.tagName === 'PICTURE') picture.querySelectorAll('source').forEach((s) => s.remove());
+  img.removeAttribute('srcset');
+  img.removeAttribute('sizes');
+  img.src = original;
+}
+
 export default function CertCarousel({ items }) {
   const n = items.length;
   const [active, setActive] = useState(0);
@@ -147,7 +158,7 @@ export default function CertCarousel({ items }) {
             <div key={c.slug} className={`cert-orbit ${stateOf(i)}`}>
               <picture>
                   <source type="image/avif" srcSet={`/certificates/${c.slug}-480.avif 480w, /certificates/${c.slug}-960.avif 960w`} sizes="(max-width: 700px) 92vw, 480px" />
-                  <img className="cert-img" src={`/certificates/${c.slug}.webp`} srcSet={`/certificates/${c.slug}-480.webp 480w, /certificates/${c.slug}-960.webp 960w, /certificates/${c.slug}.webp 1100w`} sizes="(max-width: 700px) 92vw, 480px" alt={`${c.name} certificate from ${c.issuer}`} width={c.width} height={c.height} draggable="false" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+                  <img className="cert-img" src={`/certificates/${c.slug}.webp`} srcSet={`/certificates/${c.slug}-480.webp 480w, /certificates/${c.slug}-960.webp 960w, /certificates/${c.slug}.webp 1100w`} sizes="(max-width: 700px) 92vw, 480px" alt={`${c.name} certificate from ${c.issuer}`} width={c.width} height={c.height} draggable="false" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" onError={(ev) => fallbackImage(ev.currentTarget, `/certificates/${c.slug}.webp`)} />
                 </picture>
             </div>
           ))}

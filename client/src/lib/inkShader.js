@@ -12,6 +12,7 @@
 
 const NOISE_SIZE = 256;
 const NOISE_CELLS = 32;
+const MASK_MAX_W_PHONE = 640; // phones redraw the mask every frame on a slow GPU, so keep it lighter
 const MASK_MAX_W = 1280; // mask canvas width in px; it is stretched to the screen (wider = sharper edge, slightly heavier per frame)
 
 // Look of the ink (same defaults as the original project)
@@ -284,7 +285,7 @@ export function startInkGL({ x, y, duration = 1400 }) {
   try {
     const vw = document.documentElement.clientWidth;
     const vh = document.documentElement.clientHeight;
-    const W = Math.min(vw, MASK_MAX_W);
+    const W = Math.min(vw, vw <= 800 ? MASK_MAX_W_PHONE : MASK_MAX_W);
     const scale = W / vw;
     const H = Math.max(32, Math.round(vh * scale));
     canvas = document.createElement('canvas');
