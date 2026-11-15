@@ -2,7 +2,7 @@ import { warmHero } from '../lib/heroImage';
 import { useEffect, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { startInk } from '../lib/inkReveal';
-import { startInkGL, warmInk } from '../lib/inkShader';
+import { startInkGL, warmInk, buildInkSprite, playInkSprite, clearInkSprite } from '../lib/inkShader';
 import { inkCover, isPhoneLayout } from '../lib/inkCover';
 import { runInkReveal } from '../lib/inkPolygon';
 
@@ -18,7 +18,7 @@ import { runInkReveal } from '../lib/inkPolygon';
 // moon turns into a sun with rays, and the new theme bleeds across the page like
 // ink from the button (View Transitions API + the WebGL ink shader in lib/inkShader.js;
 // lib/inkReveal.js is the plain-canvas version used when WebGL2 is missing). Phones and
-// tablets reveal the new page with a pre-computed polygon ink (lib/inkPolygon.js); browsers without
+// tablets play the same ink pre-rendered as a sprite sheet (polygon ink in lib/inkPolygon.js as a backup); browsers without
 // View Transitions use a canvas version (lib/inkCover.js); visitors who prefer reduced motion get an
 // instant switch.
 const REVEAL_MS = 2400;
@@ -126,11 +126,16 @@ export default function ThemeToggle() {
       return;
     }
 
-    const phone = isPhoneLayout(); // phones: pre-computed polygon ink (lib/inkPolygon.js); desktop: WebGL ink
+    // Phones: the same WebGL ink, pre-rendered into a sprite sheet (lib/inkShader.js). If that is
+    // not possible, the polygon ink (lib/inkPolygon.js). Desktop: the live WebGL ink.
+    const phone = isPhoneLayout();
+    const sprite = phone ? buildInkSprite({ x, y, duration: REVEAL_MS }) : null;
+    const poly = phone && !sprite;
 
     const root = document.documentElement;
     root.classList.add('theme-switching'); // switches the page's own colour fades off for the duration
-    if (phone) root.classList.add('ink-poly');
+    if (sprite) root.classList.add('ink-sprite');
+    if (poly) root.classList.add('ink-poly');
     busy.current = true;
 
     const stopInk = phone ? null : startInkGL({ x, y, duration: REVEAL_MS }) || startInk({ x, y, duration: REVEAL_MS + 400 }); // mask is empty until the first frame
@@ -143,7 +148,11 @@ export default function ThemeToggle() {
     // ink is drawn by hand, so give the snapshot a do-nothing animation that lasts as long.
     transition.ready
       .then(() => {
-        if (phone) {
+        if (sprite) {
+          if (!playInkSprite(root, sprite, REVEAL_MS)) transition.skipTransition();
+          return;
+        }
+        if (poly) {
           if (!runInkReveal(root, { x, y })) transition.skipTransition();
           return;
         }
@@ -156,7 +165,8 @@ export default function ThemeToggle() {
 
     transition.finished.finally(() => {
       if (stopInk) stopInk();
-      root.classList.remove('theme-switching', 'ink-poly');
+      root.classList.remove('theme-switching', 'ink-poly', 'ink-sprite');
+      clearInkSprite(root);
       busy.current = false;
     });
   }
@@ -170,7 +180,12 @@ export default function ThemeToggle() {
       onClick={toggle}
       onPointerEnter={() => warmHero(isDark ? 'light' : 'dark')}
       onFocus={() => warmHero(isDark ? 'light' : 'dark')}
-      onTouchStart={() => warmHero(isDark ? 'light' : 'dark')}
+      onTouchStart={(e) => {
+        warmHero(isDark ? 'light' : 'dark');
+        // Phones: render the ink sprite now, while the finger is still down, so the tap starts at once.
+        const r = e.currentTarget.getBoundingClientRect();
+        if (isPhoneLayout() && document.startViewTransition) buildInkSprite({ x: r.left + r.width / 2, y: r.top + r.height / 2, duration: REVEAL_MS });
+      }}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       aria-pressed={isDark}
     >

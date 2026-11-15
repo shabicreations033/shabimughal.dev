@@ -12,7 +12,6 @@
 
 const NOISE_SIZE = 256;
 const NOISE_CELLS = 32;
-const MASK_MAX_W_PHONE = 640; // phones redraw the mask every frame on a slow GPU, so keep it lighter
 const MASK_MAX_W = 1280; // mask canvas width in px; it is stretched to the screen (wider = sharper edge, slightly heavier per frame)
 
 // Look of the ink (same defaults as the original project)
@@ -273,80 +272,70 @@ function farthestCorner(x, y) {
   return Math.max(Math.hypot(x, y), Math.hypot(w - x, y), Math.hypot(x, h - y), Math.hypot(w - x, h - y)) + 4;
 }
 
-/**
- * Starts the ink. Returns a stop() function, or null when WebGL2 is not available.
- * `duration` is in milliseconds. The mask is empty until the first frame is drawn.
- */
-export function startInkGL({ x, y, duration = 1400 }) {
-  let gl;
-  let canvas;
-  let program;
-  let tex;
-  try {
-    const vw = document.documentElement.clientWidth;
-    const vh = document.documentElement.clientHeight;
-    const W = Math.min(vw, vw <= 800 ? MASK_MAX_W_PHONE : MASK_MAX_W);
-    const scale = W / vw;
-    const H = Math.max(32, Math.round(vh * scale));
-    canvas = document.createElement('canvas');
-    canvas.width = W;
-    canvas.height = H;
-    gl = canvas.getContext('webgl2', {
-      alpha: true,
-      premultipliedAlpha: true,
-      antialias: false,
-      depth: false,
-      stencil: false,
-      preserveDrawingBuffer: true,
-    });
-    if (!gl) return null;
+// Sets up one WebGL ink renderer of W x H pixels. draw(elapsedMs) paints the ink as it looks
+// at that moment of a `duration` ms reveal; dispose() frees the GPU objects. Returns null without WebGL2.
+function createInk({ x, y, duration, W, H }) {
+  const vw = document.documentElement.clientWidth;
+  const scale = W / vw;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const gl = canvas.getContext('webgl2', {
+    alpha: true,
+    premultipliedAlpha: true,
+    antialias: false,
+    depth: false,
+    stencil: false,
+    preserveDrawingBuffer: true,
+  });
+  if (!gl) return null;
 
-    warmInk();
-    program = gl.createProgram();
-    const vs = compile(gl, gl.VERTEX_SHADER, VERT);
-    const fs = compile(gl, gl.FRAGMENT_SHADER, FRAG);
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('ink program link failed');
-    gl.useProgram(program);
-    gl.bindVertexArray(gl.createVertexArray());
+  warmInk();
+  const program = gl.createProgram();
+  const vs = compile(gl, gl.VERTEX_SHADER, VERT);
+  const fs = compile(gl, gl.FRAGMENT_SHADER, FRAG);
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('ink program link failed');
+  gl.useProgram(program);
+  gl.bindVertexArray(gl.createVertexArray());
 
-    tex = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, NOISE_SIZE, NOISE_SIZE, 0, gl.RGBA, gl.UNSIGNED_BYTE, noiseCache);
+  const tex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, NOISE_SIZE, NOISE_SIZE, 0, gl.RGBA, gl.UNSIGNED_BYTE, noiseCache);
 
-    const u = (n) => gl.getUniformLocation(program, n);
-    const maxDist = farthestCorner(x, y);
-    const seed = { x: Math.random() * 64 - 32, y: Math.random() * 64 - 32, angle: Math.random() * Math.PI * 2 };
-    const cos = Math.cos(seed.angle);
-    const sin = Math.sin(seed.angle);
+  const u = (n) => gl.getUniformLocation(program, n);
+  const maxDist = farthestCorner(x, y);
+  const seed = { x: Math.random() * 64 - 32, y: Math.random() * 64 - 32, angle: Math.random() * Math.PI * 2 };
+  const cos = Math.cos(seed.angle);
+  const sin = Math.sin(seed.angle);
 
-    gl.viewport(0, 0, W, H);
-    gl.uniform1i(u('uNoise'), 0);
-    gl.uniform1f(u('uCanvasScale'), scale);
-    gl.uniform2f(u('uRes'), W, H);
-    gl.uniform2f(u('uCenter'), x, y);
-    gl.uniform1f(u('uRef'), Math.max(W, H) / scale);
-    gl.uniform2f(u('uSeed'), seed.x, seed.y);
-    gl.uniformMatrix2fv(u('uSeedRot'), false, [cos, sin, -sin, cos]);
-    gl.uniform1f(u('uTendril'), PARAMS.tendril);
-    gl.uniform1f(u('uNoiseScale'), PARAMS.noiseScale);
-    gl.uniform1f(u('uSoftness'), PARAMS.softness);
-    gl.uniform1f(u('uDrift'), PARAMS.drift);
-    const uRadius = u('uRadius');
-    const uCleanup = u('uCleanup');
-    const uTime = u('uTime');
+  gl.viewport(0, 0, W, H);
+  gl.uniform1i(u('uNoise'), 0);
+  gl.uniform1f(u('uCanvasScale'), scale);
+  gl.uniform2f(u('uRes'), W, H);
+  gl.uniform2f(u('uCenter'), x, y);
+  gl.uniform1f(u('uRef'), Math.max(W, H) / scale);
+  gl.uniform2f(u('uSeed'), seed.x, seed.y);
+  gl.uniformMatrix2fv(u('uSeedRot'), false, [cos, sin, -sin, cos]);
+  gl.uniform1f(u('uTendril'), PARAMS.tendril);
+  gl.uniform1f(u('uNoiseScale'), PARAMS.noiseScale);
+  gl.uniform1f(u('uSoftness'), PARAMS.softness);
+  gl.uniform1f(u('uDrift'), PARAMS.drift);
+  const uRadius = u('uRadius');
+  const uCleanup = u('uCleanup');
+  const uTime = u('uTime');
+  const seconds = duration / 1000;
 
-    const root = document.documentElement;
-    const seconds = duration / 1000;
-
-    const push = (elapsedMs) => {
+  return {
+    canvas,
+    draw(elapsedMs) {
       const lin = Math.min(1, elapsedMs / duration);
       const progress = 1 - Math.pow(1 - lin, 3); // power3.out, like the original
       const ramp = Math.max(0, (lin - SPREAD.cleanupFrom) / (1 - SPREAD.cleanupFrom));
@@ -356,9 +345,37 @@ export function startInkGL({ x, y, duration = 1400 }) {
       gl.uniform1f(uCleanup, cleanup);
       gl.uniform1f(uTime, lin * seconds);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
-      root.style.setProperty('--ink-mask', `url(${canvas.toDataURL('image/png')})`);
-    };
+    },
+    dispose() {
+      try {
+        gl.deleteTexture(tex);
+        gl.deleteProgram(program);
+        const lose = gl.getExtension('WEBGL_lose_context');
+        if (lose) lose.loseContext();
+      } catch (err) {
+        // nothing left to clean up
+      }
+    },
+  };
+}
 
+/**
+ * Starts the ink. Returns a stop() function, or null when WebGL2 is not available.
+ * `duration` is in milliseconds. The mask is empty until the first frame is drawn.
+ */
+export function startInkGL({ x, y, duration = 1400 }) {
+  try {
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    const W = Math.min(vw, MASK_MAX_W);
+    const H = Math.max(32, Math.round(vh * (W / vw)));
+    const ink = createInk({ x, y, duration, W, H });
+    if (!ink) return null;
+    const root = document.documentElement;
+    const push = (ms) => {
+      ink.draw(ms);
+      root.style.setProperty('--ink-mask', `url(${ink.canvas.toDataURL('image/png')})`);
+    };
     push(0); // empty mask: the new snapshot stays hidden until the first real frame
 
     let raf = 0;
@@ -377,16 +394,77 @@ export function startInkGL({ x, y, duration = 1400 }) {
       stopped = true;
       cancelAnimationFrame(raf);
       root.style.removeProperty('--ink-mask');
-      try {
-        gl.deleteTexture(tex);
-        gl.deleteProgram(program);
-        const lose = gl.getExtension('WEBGL_lose_context');
-        if (lose) lose.loseContext();
-      } catch (err) {
-        // nothing left to clean up
-      }
+      ink.dispose();
     };
   } catch (err) {
     return null;
   }
+}
+
+// ---- Phones: the same ink, pre-rendered ---------------------------------------------------------
+// Encoding a PNG on every frame is too heavy for a phone. Instead the whole reveal is drawn once
+// into a sprite sheet (FRAMES small mask frames in a grid) and played back by stepping the mask's
+// position, which costs the phone nothing while it animates.
+const SPRITE_FRAMES = 49;
+const SPRITE_COLS = 7;
+const SPRITE_W = 240;
+let spriteCache = null;
+
+export function buildInkSprite({ x, y, duration }) {
+  const vw = document.documentElement.clientWidth;
+  const vh = document.documentElement.clientHeight;
+  const key = [Math.round(x), Math.round(y), vw, vh, duration].join('|');
+  if (spriteCache && spriteCache.key === key) return spriteCache;
+  try {
+    const W = Math.min(vw, SPRITE_W);
+    const H = Math.max(32, Math.round(vh * (W / vw)));
+    const ink = createInk({ x, y, duration, W, H });
+    if (!ink) return null;
+    const rows = Math.ceil(SPRITE_FRAMES / SPRITE_COLS);
+    const sheet = document.createElement('canvas');
+    sheet.width = W * SPRITE_COLS;
+    sheet.height = H * rows;
+    const ctx = sheet.getContext('2d');
+    for (let i = 0; i < SPRITE_FRAMES; i++) {
+      ink.draw((i / (SPRITE_FRAMES - 1)) * duration);
+      ctx.drawImage(ink.canvas, (i % SPRITE_COLS) * W, Math.floor(i / SPRITE_COLS) * H);
+    }
+    ink.dispose();
+    spriteCache = { key, url: sheet.toDataURL('image/png'), frames: SPRITE_FRAMES, cols: SPRITE_COLS, rows };
+    return spriteCache;
+  } catch (err) {
+    return null;
+  }
+}
+
+// Starts the sprite playback on the new-page snapshot. Returns the Animation, or null.
+export function playInkSprite(root, sprite, duration) {
+  try {
+    const { cols, rows, frames, url } = sprite;
+    root.style.setProperty('--ink-sprite', `url(${url})`);
+    root.style.setProperty('--ink-sprite-size', `${cols * 100}% ${rows * 100}%`);
+    const pos = (i) => {
+      const cx = cols > 1 ? ((i % cols) / (cols - 1)) * 100 : 0;
+      const cy = rows > 1 ? (Math.floor(i / cols) / (rows - 1)) * 100 : 0;
+      return `${cx}% ${cy}%`;
+    };
+    const keyframes = [];
+    for (let i = 0; i < frames; i++) {
+      keyframes.push({ maskPosition: pos(i), webkitMaskPosition: pos(i), offset: i / frames, easing: 'steps(1, end)' });
+    }
+    keyframes.push({ maskPosition: pos(frames - 1), webkitMaskPosition: pos(frames - 1), offset: 1 });
+    return root.animate(keyframes, {
+      duration: duration + 50,
+      easing: 'linear',
+      fill: 'forwards',
+      pseudoElement: '::view-transition-new(root)',
+    });
+  } catch (err) {
+    return null;
+  }
+}
+
+export function clearInkSprite(root) {
+  root.style.removeProperty('--ink-sprite');
+  root.style.removeProperty('--ink-sprite-size');
 }
