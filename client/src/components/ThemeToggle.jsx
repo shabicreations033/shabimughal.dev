@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { startInk } from '../lib/inkReveal';
 import { startInkGL, warmInk } from '../lib/inkShader';
+import { inkCover, preferInkCover } from '../lib/inkCover';
 
 // Theme logic:
 //  - First visit: follow the visitor's Windows / browser colour scheme
@@ -15,39 +16,12 @@ import { startInkGL, warmInk } from '../lib/inkShader';
 // dark); dark theme shows a light circle with a sun (click to go light). The
 // moon turns into a sun with rays, and the new theme bleeds across the page like
 // ink from the button (View Transitions API + the WebGL ink shader in lib/inkShader.js;
-// lib/inkReveal.js is the plain-canvas version used when WebGL2 is missing). Browsers
-// without View Transitions get a simpler cover-and-fade (coverSwitch below); visitors who prefer
-// reduced motion get an instant switch.
+// lib/inkReveal.js is the plain-canvas version used when WebGL2 is missing). Phones, tablets
+// and browsers without View Transitions use a canvas version of the same ink (lib/inkCover.js);
+// visitors who prefer reduced motion get an instant switch.
 const REVEAL_MS = 2400;
 
-// Browsers without View Transitions (older iOS Safari, Firefox on Android) get a lighter version of
-// the same idea: a disc in the new theme's background colour grows from the button until it covers
-// the page, the theme switches underneath it, and the disc fades away.
-const NEW_BG = { light: '#ffffff', dark: '#0b0b0f' };
-function coverSwitch({ x, y, next, commit, done }) {
-  const w = document.documentElement.clientWidth;
-  const h = document.documentElement.clientHeight;
-  const reach = Math.max(Math.hypot(x, y), Math.hypot(w - x, y), Math.hypot(x, h - y), Math.hypot(w - x, h - y)) + 4;
-  const el = document.createElement('div');
-  el.setAttribute('aria-hidden', 'true');
-  el.style.cssText = `position:fixed;inset:0;z-index:2147483000;pointer-events:none;background:${NEW_BG[next]};clip-path:circle(0px at ${x}px ${y}px);`;
-  document.body.appendChild(el);
-  const grow = el.animate(
-    { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${reach}px at ${x}px ${y}px)`] },
-    { duration: 650, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' }
-  );
-  grow.finished
-    .then(() => {
-      commit();
-      return new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    })
-    .then(() => el.animate({ opacity: [1, 0] }, { duration: 450, easing: 'ease-out', fill: 'forwards' }).finished)
-    .catch(() => commit())
-    .finally(() => {
-      el.remove();
-      done();
-    });
-}
+const NEW_BG = { light: '#ffffff', dark: '#0b0b0f' }; // background of each theme, for the canvas ink
 
 function readSaved() {
   try {
@@ -138,19 +112,14 @@ export default function ThemeToggle() {
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    if (!document.startViewTransition || !document.body.animate) {
+    // Phones, tablets and browsers without View Transitions: ink drawn on a canvas (lib/inkCover.js).
+    if (preferInkCover()) {
       busy.current = true;
       const root0 = document.documentElement;
       root0.classList.add('theme-switching');
-      coverSwitch({
-        x,
-        y,
-        next,
-        commit,
-        done: () => {
-          root0.classList.remove('theme-switching');
-          busy.current = false;
-        },
+      inkCover({ x, y, color: NEW_BG[next], commit: () => flushSync(commit) }).finally(() => {
+        root0.classList.remove('theme-switching');
+        busy.current = false;
       });
       return;
     }
