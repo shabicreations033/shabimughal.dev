@@ -470,6 +470,12 @@ textarea:focus-visible {
 }
 /* While switching, the page's own colour fades are paused so the new theme appears at full
    strength inside the ink (the toggle itself keeps its animation). */
+/* Phones: the new page stays hidden until the polygon animation (lib/inkPolygon.js) starts. */
+html.ink-poly::view-transition-new(root) {
+  -webkit-mask-image: none;
+  mask-image: none;
+  clip-path: circle(0px at 50% 50%);
+}
 html.theme-switching *:not(.theme-toggle):not(.theme-toggle *),
 html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::before,
 html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {

@@ -1,8 +1,9 @@
-// Theme switch for phones, tablets and browsers without View Transitions.
+// Theme switch for browsers without View Transitions (older iPhones, Firefox on Android).
 //
 // The desktop version masks a snapshot of the new page with an ink shape (View Transitions API).
 // Phone browsers handle that unevenly (iOS Safari, Android WebView, low-end GPUs), so here the ink is
 // drawn on a plain full-screen <canvas> that every browser supports:
+// Phones with View Transitions use lib/inkPolygon.js instead, which reveals the real new page.
 //   1. an ink blob in the NEW theme's background colour spreads from the button across the screen,
 //   2. once it covers everything, the theme is switched underneath it,
 //   3. the blob fades away and the new theme is there.
@@ -92,10 +93,9 @@ export function inkCover({ x, y, color, commit }) {
   });
 }
 
-// Use the canvas version on touch devices, small screens, and browsers without View Transitions.
-export function preferInkCover() {
+// True on touch devices and small screens (phones and tablets).
+export function isPhoneLayout() {
   if (typeof window === 'undefined') return false;
   const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-  const small = window.innerWidth <= 800;
-  return touch || small || !document.startViewTransition;
+  return touch || window.innerWidth <= 800;
 }

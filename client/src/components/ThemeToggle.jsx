@@ -3,7 +3,8 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { startInk } from '../lib/inkReveal';
 import { startInkGL, warmInk } from '../lib/inkShader';
-import { inkCover, preferInkCover } from '../lib/inkCover';
+import { inkCover, isPhoneLayout } from '../lib/inkCover';
+import { runInkReveal } from '../lib/inkPolygon';
 
 // Theme logic:
 //  - First visit: follow the visitor's Windows / browser colour scheme
@@ -16,9 +17,10 @@ import { inkCover, preferInkCover } from '../lib/inkCover';
 // dark); dark theme shows a light circle with a sun (click to go light). The
 // moon turns into a sun with rays, and the new theme bleeds across the page like
 // ink from the button (View Transitions API + the WebGL ink shader in lib/inkShader.js;
-// lib/inkReveal.js is the plain-canvas version used when WebGL2 is missing). Phones, tablets
-// and browsers without View Transitions use a canvas version of the same ink (lib/inkCover.js);
-// visitors who prefer reduced motion get an instant switch.
+// lib/inkReveal.js is the plain-canvas version used when WebGL2 is missing). Phones and
+// tablets reveal the new page with a pre-computed polygon ink (lib/inkPolygon.js); browsers without
+// View Transitions use a canvas version (lib/inkCover.js); visitors who prefer reduced motion get an
+// instant switch.
 const REVEAL_MS = 2400;
 
 const NEW_BG = { light: '#ffffff', dark: '#0b0b0f' }; // background of each theme, for the canvas ink
@@ -112,8 +114,8 @@ export default function ThemeToggle() {
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    // Phones, tablets and browsers without View Transitions: ink drawn on a canvas (lib/inkCover.js).
-    if (preferInkCover()) {
+    // No View Transitions (older iPhones, Firefox on Android): ink drawn on a canvas (lib/inkCover.js).
+    if (!document.startViewTransition) {
       busy.current = true;
       const root0 = document.documentElement;
       root0.classList.add('theme-switching');
@@ -124,11 +126,14 @@ export default function ThemeToggle() {
       return;
     }
 
+    const phone = isPhoneLayout(); // phones: pre-computed polygon ink (lib/inkPolygon.js); desktop: WebGL ink
+
     const root = document.documentElement;
     root.classList.add('theme-switching'); // switches the page's own colour fades off for the duration
+    if (phone) root.classList.add('ink-poly');
     busy.current = true;
 
-    const stopInk = startInkGL({ x, y, duration: REVEAL_MS }) || startInk({ x, y, duration: REVEAL_MS + 400 }); // mask is empty until the first frame
+    const stopInk = phone ? null : startInkGL({ x, y, duration: REVEAL_MS }) || startInk({ x, y, duration: REVEAL_MS + 400 }); // mask is empty until the first frame
 
     const transition = document.startViewTransition(() => {
       flushSync(commit);
@@ -138,6 +143,10 @@ export default function ThemeToggle() {
     // ink is drawn by hand, so give the snapshot a do-nothing animation that lasts as long.
     transition.ready
       .then(() => {
+        if (phone) {
+          if (!runInkReveal(root, { x, y })) transition.skipTransition();
+          return;
+        }
         root.animate(
           { opacity: [1, 1] },
           { duration: REVEAL_MS + 450, pseudoElement: '::view-transition-new(root)' }
@@ -146,8 +155,8 @@ export default function ThemeToggle() {
       .catch(() => {});
 
     transition.finished.finally(() => {
-      stopInk();
-      root.classList.remove('theme-switching');
+      if (stopInk) stopInk();
+      root.classList.remove('theme-switching', 'ink-poly');
       busy.current = false;
     });
   }
