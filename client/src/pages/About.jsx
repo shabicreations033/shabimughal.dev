@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { pageGraph } from '../lib/schema';
 import Reveal from '../components/Reveal';
 import Mask from '../components/Mask';
 import { certLink } from '../components/CertCarousel';
@@ -54,6 +55,7 @@ export default function About() {
       <Seo
         title={`About | ${profile.name}, ${profile.title}`}
         description={`Skills, education, certifications and experience of ${profile.name}, a ${profile.title} based in ${profile.location}.`}
+        jsonLd={pageGraph([{ name: 'Home', path: '/' }, { name: 'About', path: '/about' }])}
       />
       <section className="wrap" style={{ paddingBottom: 0 }}>
         <Reveal as="p" className="eyebrow-plain">

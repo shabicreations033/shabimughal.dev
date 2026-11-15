@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PageCurtain from './components/PageCurtain';
@@ -12,8 +12,10 @@ import useSmoothScroll from './hooks/useSmoothScroll';
 import Home from './pages/Home';
 import About from './pages/About';
 import Projects from './pages/Projects';
-import ProjectDetail from './pages/ProjectDetail';
 import Contact from './pages/Contact';
+
+// The project page (gallery data, lightbox) is only needed on /projects/*, so it loads on demand.
+const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
 
 export default function App() {
   const location = useLocation();
@@ -36,7 +38,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:slug" element={<ProjectDetail />} />
+          <Route path="/projects/:slug" element={<Suspense fallback={null}><ProjectDetail /></Suspense>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

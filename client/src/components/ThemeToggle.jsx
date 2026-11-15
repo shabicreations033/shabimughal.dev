@@ -1,3 +1,4 @@
+import { warmHero } from '../lib/heroImage';
 import { useEffect, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { startInk } from '../lib/inkReveal';
@@ -28,12 +29,15 @@ function readSaved() {
 }
 
 function systemTheme() {
+  if (typeof window === 'undefined') return 'light';
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 function applyTheme(theme) {
   if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   else document.documentElement.removeAttribute('data-theme');
+  // Lets components that pick content by theme (the hero photo) update in the same frame.
+  window.dispatchEvent(new Event('themechange'));
 }
 
 function prefersReducedMotion() {
@@ -139,6 +143,9 @@ export default function ThemeToggle() {
       type="button"
       className={`theme-toggle ${isDark ? 'is-dark' : ''}`}
       onClick={toggle}
+      onPointerEnter={() => warmHero(isDark ? 'light' : 'dark')}
+      onFocus={() => warmHero(isDark ? 'light' : 'dark')}
+      onTouchStart={() => warmHero(isDark ? 'light' : 'dark')}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       aria-pressed={isDark}
     >

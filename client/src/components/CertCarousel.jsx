@@ -145,7 +145,10 @@ export default function CertCarousel({ items }) {
         <div className="cert-visual" aria-hidden="true">
           {items.map((c, i) => (
             <div key={c.slug} className={`cert-orbit ${stateOf(i)}`}>
-              <img className="cert-img" src={`/certificates/${c.slug}.webp`} alt={`${c.name} certificate from ${c.issuer}`} width={c.width} height={c.height} draggable="false" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+              <picture>
+                  <source type="image/avif" srcSet={`/certificates/${c.slug}-480.avif 480w, /certificates/${c.slug}-960.avif 960w`} sizes="(max-width: 700px) 92vw, 480px" />
+                  <img className="cert-img" src={`/certificates/${c.slug}.webp`} srcSet={`/certificates/${c.slug}-480.webp 480w, /certificates/${c.slug}-960.webp 960w, /certificates/${c.slug}.webp 1100w`} sizes="(max-width: 700px) 92vw, 480px" alt={`${c.name} certificate from ${c.issuer}`} width={c.width} height={c.height} draggable="false" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+                </picture>
             </div>
           ))}
         </div>

@@ -17,6 +17,8 @@
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
+  /* Latin only (the file is subset to match); the site is English. */
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2190-2199, U+2212, U+FEFF;
 }
 
 :root {
@@ -264,8 +266,8 @@ textarea:focus-visible {
   width: 1.625rem;
   height: 1.75rem;
   background-color: var(--ink);
-  -webkit-mask: url("/logo.png") center / contain no-repeat;
-  mask: url("/logo.png") center / contain no-repeat;
+  -webkit-mask: url("/logo.svg") center / contain no-repeat;
+  mask: url("/logo.svg") center / contain no-repeat;
   transition: background-color 0.3s var(--ease-soft), transform 0.35s var(--ease-soft);
 }
 .logo:hover .logo-mark {
@@ -679,36 +681,15 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
   z-index: 2;
   border-radius: 4px;
   overflow: hidden;
-  clip-path: inset(100% 0 0 0);
-  transition: clip-path 1s var(--ease) 0.2s;
   /* Thin, eased fade (last ~16%): the photo dissolves into the page colour of the active theme. */
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 84%, rgba(0,0,0,.7) 90%, rgba(0,0,0,.3) 95%, rgba(0,0,0,.06) 98.5%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 84%, rgba(0,0,0,.7) 90%, rgba(0,0,0,.3) 95%, rgba(0,0,0,.06) 98.5%, transparent 100%);
 }
-/* Dark theme uses a different photo (lighter sweater) instead of the light
-   theme's photo — a light-colored backdrop is what makes the hero-name's
-   blend-mode ghost effect actually invert and stay readable in dark mode.
-   Swapped via a background-image layer instead of the <img> tag, so this
-   needs no JSX changes: the original <img> is simply hidden in dark mode. */
-[data-theme="dark"] .hero-portrait img {
-  display: none;
-}
-.hero-portrait::before {
-  content: "";
-  display: none;
-}
-[data-theme="dark"] .hero-portrait::before {
-  display: block;
-  position: absolute;
-  inset: 0;
-  background-image: url("/shabi-hero-dark.webp");
-  background-size: cover;
-  background-position: top center;
-}
-.is-ready .hero-portrait {
-  clip-path: inset(0 0 0 0);
-}
-
+/* The dark theme uses a different photo (lighter sweater): a light backdrop is what makes the
+   hero-name's blend-mode ghost effect invert and stay readable. Home.jsx loads only the photo for
+   the current theme. The portrait has no reveal animation, so the browser can paint it as soon
+   as it arrives (the entrance animation stays on the headline and text). */
+.hero-portrait picture { display: block; width: 100%; height: 100%; }
 .hero-portrait img,
 .portrait-placeholder {
   width: 100%;
@@ -1874,6 +1855,28 @@ section {
 }
 .pd-nav .next {
   text-align: right;
+}
+/* Hover: the title slides a few pixels toward its arrow and a thin line draws under it; the label darkens. */
+.pd-nav a { align-items: flex-start; }
+.pd-nav .next { align-items: flex-end; }
+.pd-nav .dir { transition: color 0.4s var(--ease-soft); }
+.pd-nav .title {
+  background: linear-gradient(var(--ink), var(--ink)) 0 100% / 0 1px no-repeat;
+  padding-bottom: 0.25rem;
+  transition: transform 0.45s var(--ease), background-size 0.5s var(--ease), color 0.3s var(--ease-soft);
+}
+.pd-nav .next .title { background-position: 100% 100%; }
+@media (hover: hover) {
+  .pd-nav a:hover .dir,
+  .pd-nav a:focus-visible .dir { color: var(--ink); }
+  .pd-nav a:hover .title,
+  .pd-nav a:focus-visible .title { background-size: 100% 1px; transform: translateX(-6px); }
+  .pd-nav .next:hover .title,
+  .pd-nav .next:focus-visible .title { transform: translateX(6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pd-nav .title { transition: none; }
+  .pd-nav a:hover .title { transform: none; }
 }
 
 .grayscale-fill {
@@ -3850,7 +3853,7 @@ html.has-custom-cursor textarea {
 [data-theme="dark"] .bcard-portrait-img--light { display: none; }
 [data-theme="dark"] .bcard-portrait-img--dark { display: block; }
 .bcard-info-col { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 0 0 12px 1.5rem; }
-.bcard-front .bcard-bar:last-child { padding-top: 12px; border-top: 1px solid var(--line); }
+.bcard-front .bcard-bar:last-child { padding-top: 12px; }
 .bcard-sm-badge { width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--ink); margin-bottom: 10px; }
 .bcard-name { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--ink); margin: 0 0 2px; }
 .bcard-role { font-size: 12px; color: var(--ink-soft); margin: 0; }
@@ -3884,3 +3887,5 @@ html.has-custom-cursor textarea {
 @media (prefers-reduced-motion: reduce) {
   .bcard-tilt, .bcard-face { transition-duration: 0.01s; }
 }
+
+.pd-cover picture { display: block; width: 100%; height: 100%; }

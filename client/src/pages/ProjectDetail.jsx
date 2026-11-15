@@ -1,9 +1,10 @@
 import { Link, useParams } from 'react-router-dom';
 import { getProjectBySlug, getNeighbors } from '../data/portfolioData';
 import Seo from '../components/Seo';
+import { pageGraph, projectNode } from '../lib/schema';
 import Reveal from '../components/Reveal';
 import Mask from '../components/Mask';
-import { coverFor } from '../data/covers';
+import { coverFor, coverSources } from '../data/covers';
 import { galleryFor } from '../data/gallery';
 import ProjectGallery from '../components/ProjectGallery';
 
@@ -25,7 +26,16 @@ export default function ProjectDetail() {
 
   return (
     <>
-      <Seo title={`${project.title} | Shabi Mughal`} description={project.shortDescription} />
+      <Seo
+        title={`${project.title} | Shabi Mughal`}
+        description={project.shortDescription}
+        image={coverFor(project)}
+        type="article"
+        jsonLd={pageGraph(
+          [{ name: 'Home', path: '/' }, { name: 'Projects', path: '/projects' }, { name: project.title, path: `/projects/${project.slug}` }],
+          projectNode(project)
+        )}
+      />
       <section className="wrap pd-hero">
         <Reveal as="p" className="eyebrow-plain">
           Case study
@@ -64,7 +74,20 @@ export default function ProjectDetail() {
       <section className="wrap" style={{ paddingTop: 0 }}>
         <Reveal as="div" className="pd-cover reveal-clip">
           {coverFor(project) ? (
-            <img className="pd-cover-img" src={coverFor(project)} alt={`${project.title} cover illustration`} loading="eager" />
+            <picture>
+              {coverSources(project) && <source type="image/avif" srcSet={coverSources(project).avif} sizes="(max-width: 1440px) 100vw, 1440px" />}
+              <img
+                className="pd-cover-img"
+                src={coverFor(project)}
+                srcSet={coverSources(project) ? coverSources(project).webp : undefined}
+                sizes="(max-width: 1440px) 100vw, 1440px"
+                width="1600"
+                height="900"
+                alt={`${project.title} cover illustration`}
+                loading="eager"
+                fetchpriority="high"
+              />
+            </picture>
           ) : (
             <div className="grayscale-fill" />
           )}

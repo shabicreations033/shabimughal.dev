@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { allProjects as projects } from '../data/portfolioData';
 import Seo from '../components/Seo';
+import { pageGraph } from '../lib/schema';
 import Reveal from '../components/Reveal';
 import Mask from '../components/Mask';
-import { coverFor } from '../data/covers';
+import { coverFor, coverThumb } from '../data/covers';
 
 // Short display names for the coverflow strip — full titles are too long to
 // read comfortably on a small tilted card, so each project gets a shorter tag.
@@ -24,6 +25,7 @@ export default function Projects() {
       <Seo
         title="Projects | Shabi Mughal"
         description={`${projects.length} projects by Shabi Mughal: web platforms, a Flutter mobile app, secure backends, data dashboards and core systems in C++.`}
+        jsonLd={pageGraph([{ name: 'Home', path: '/' }, { name: 'Projects', path: '/projects' }])}
       />
       <section className="wrap" style={{ paddingBottom: 0 }}>
         <Reveal as="p" className="eyebrow-plain">
@@ -49,7 +51,7 @@ export default function Projects() {
                   key={`${p.slug}-${i}`}
                   to={`/projects/${p.slug}`}
                   className={`coverflow-card${coverFor(p) ? ' has-cover' : ''}`}
-                  style={coverFor(p) ? { '--cover': `url(${coverFor(p)})` } : undefined}
+                  style={coverFor(p) ? { '--cover': `url(${coverThumb(p)})` } : undefined}
                 >
                   {SHORT_NAMES[p.slug] || p.title}
                 </Link>

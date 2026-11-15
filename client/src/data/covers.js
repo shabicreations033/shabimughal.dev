@@ -16,3 +16,20 @@ export function coverFor(project) {
 }
 
 export default covers;
+
+// Smaller copies of a cover (800 px / 1200 px wide) for cards and the project page. Falls back to the
+// original for covers that have no resized copy (for example one set in the database).
+export function coverThumb(project) {
+  const src = coverFor(project);
+  return /^\/projects\/[^/]+\.webp$/.test(src) ? src.replace(/\.webp$/, '-800.webp') : src;
+}
+
+export function coverSources(project) {
+  const src = coverFor(project);
+  if (!/^\/projects\/[^/]+\.webp$/.test(src)) return null;
+  const base = src.replace(/\.webp$/, '');
+  return {
+    avif: `${base}-800.avif 800w, ${base}-1200.avif 1200w`,
+    webp: `${base}-800.webp 800w, ${base}-1200.webp 1200w, ${src} 1600w`,
+  };
+}

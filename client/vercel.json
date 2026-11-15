@@ -1,21 +1,27 @@
 {
-  "redirects": [
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "shabimughal-dev.vercel.app"
-        }
-      ],
-      "destination": "https://shabimughal.dev/$1",
-      "permanent": true
-    }
-  ],
-  "rewrites": [
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=()" }
+      ]
+    },
     {
-      "source": "/(.*)",
-      "destination": "/"
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/(fonts|projects|certificates|icons|splash)/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=86400" }]
+    },
+    {
+      "source": "/(shabi-[^/]*|logo.svg|favicon.svg|og-image.png)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=86400" }]
     }
   ]
 }

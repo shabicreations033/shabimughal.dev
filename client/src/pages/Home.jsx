@@ -11,10 +11,15 @@ import SocialIcons from '../components/SocialIcons';
 import ThemeToggle from '../components/ThemeToggle';
 import { whenCurtainLifts } from '../components/PageCurtain';
 import profile from '../data/profile';
-import { coverFor } from '../data/covers';
+import { coverFor, coverThumb } from '../data/covers';
+import useTheme from '../hooks/useTheme';
+import { HERO } from '../lib/heroImage';
+import { homeGraph } from '../lib/schema';
 
 export default function Home() {
   const [ready, setReady] = useState(false);
+  const theme = useTheme();
+  const hero = HERO[theme];
   // On phones the theme switch lives in the hero (the header only holds the logo and menu).
   const [phone, setPhone] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 600px)').matches);
   useEffect(() => {
@@ -51,6 +56,7 @@ export default function Home() {
       <Seo
         title={`${profile.name} | ${profile.title}`}
         description="Portfolio of Shabi Mughal, a Full Stack Software Engineer building web and mobile products with React, Node.js, MongoDB, Flutter and Firebase."
+        jsonLd={homeGraph()}
       />
       <section className={`hero ${ready ? 'is-ready' : ''}`}>
         <div className="wrap hero-stage">
@@ -73,7 +79,24 @@ export default function Home() {
           </h1>
 
           <div className="hero-portrait">
-            <img src="/shabi-hero-light.webp" alt="Shabi Mughal" fetchPriority="high" decoding="async" />
+            <picture>
+              <source
+                type="image/avif"
+                srcSet={`${hero.base}-480.avif 480w, ${hero.base}-768.avif 768w, ${hero.base}-1145.avif 1145w`}
+                sizes="(max-width: 600px) 72vw, 46vw"
+              />
+              <img
+                key={theme}
+                src={`${hero.base}.webp`}
+                srcSet={`${hero.base}-480.webp 480w, ${hero.base}-768.webp 768w, ${hero.base}.webp 1145w`}
+                sizes="(max-width: 600px) 72vw, 46vw"
+                width="1145"
+                height="1129"
+                alt="Shabi Mughal"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </picture>
           </div>
 
           <SocialIcons />
@@ -137,7 +160,7 @@ export default function Home() {
           <Reveal as="div" className="project-grid stagger">
             {projects.map((p, i) => (
               <Link key={p.slug} to={`/projects/${p.slug}`} className="project-card">
-                <div className="thumb" style={coverFor(p) ? { '--cover': `url(${coverFor(p)})` } : undefined} />
+                <div className="thumb" style={coverFor(p) ? { '--cover': `url(${coverThumb(p)})` } : undefined} />
                 <span className="p-index">{String(i + 1).padStart(2, '0')}</span>
                 <div>
                   <h3 className="p-title">{p.title}</h3>

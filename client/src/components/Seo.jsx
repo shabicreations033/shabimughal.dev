@@ -2,12 +2,74 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import profile from '../data/profile';
 
-// Sets the page title, description, canonical address and share tags for the current route.
-// Google runs the site's JavaScript, so it reads these per page. (Link previews on LinkedIn or
-// WhatsApp do not run JavaScript, so they always show the tags written in index.html.)
+// Sets the page title, description, canonical address, share tags and structured data for the
+// current route.
+//
+// Two places read this:
+//  1. The build step (scripts/prerender.mjs) renders every route to static HTML. While it does,
+//     this component records its props in `globalThis.__SEO__` and `buildHeadTags()` turns them into
+//     <head> markup, so crawlers and link previews (LinkedIn, WhatsApp, Slack, X) see the real tags
+//     without running JavaScript.
+//  2. In the browser the effect below keeps the tags correct when the visitor moves between pages.
 
-function setMeta(selector, attr, key, value) {
-  let el = document.head.querySelector(selector);
+const SITE = profile.siteUrl.replace(/\/$/, '');
+export const DEFAULT_IMAGE = '/og-image.png';
+
+// Cut a long description at a word boundary so search results do not truncate it mid-word.
+export function shorten(text, max = 158) {
+  if (!text || text.length <= max) return text || '';
+  const cut = text.slice(0, max - 1);
+  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:.\s]+$/, '') + '…';
+}
+
+export function canonicalFor(pathname) {
+  return SITE + (pathname === '/' ? '/' : pathname.replace(/\/$/, ''));
+}
+
+function absolute(src) {
+  if (!src) return SITE + DEFAULT_IMAGE;
+  return /^https?:/.test(src) ? src : SITE + src;
+}
+
+// Everything the head needs, as a plain list of tags.
+export function seoTags({ title, description, noindex = false, image, type = 'website', pathname = '/' }) {
+  const url = canonicalFor(pathname);
+  const desc = shorten(description);
+  const img = absolute(image);
+  return {
+    title,
+    url,
+    meta: [
+      ['name', 'description', desc],
+      ['name', 'robots', noindex ? 'noindex, follow' : 'index, follow'],
+      ['property', 'og:type', type],
+      ['property', 'og:site_name', profile.name],
+      ['property', 'og:title', title],
+      ['property', 'og:description', desc],
+      ['property', 'og:url', url],
+      ['property', 'og:image', img],
+      ['name', 'twitter:card', 'summary_large_image'],
+      ['name', 'twitter:title', title],
+      ['name', 'twitter:description', desc],
+      ['name', 'twitter:image', img],
+    ],
+  };
+}
+
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const jsonSafe = (o) => JSON.stringify(o).replace(/</g, '\\u003c');
+
+// <head> markup for the build step.
+export function buildHeadTags(data) {
+  const t = seoTags(data);
+  const lines = [`<link rel="canonical" href="${esc(t.url)}" />`];
+  for (const [attr, key, value] of t.meta) lines.push(`<meta ${attr}="${key}" content="${esc(value)}" />`);
+  if (data.jsonLd && data.jsonLd.length) lines.push(`<script type="application/ld+json" data-seo="ld">${jsonSafe(data.jsonLd)}</script>`);
+  return { title: t.title, description: t.meta[0][2], tags: lines.join('\n  ') };
+}
+
+function setMeta(attr, key, value) {
+  let el = document.head.querySelector(`meta[${attr}="${key}"]`);
   if (!el) {
     el = document.createElement('meta');
     el.setAttribute(attr, key);
@@ -26,31 +88,37 @@ function setCanonical(href) {
   el.setAttribute('href', href);
 }
 
-// Cut a long description at a word boundary so search results do not truncate it mid-word.
-export function shorten(text, max = 158) {
-  if (!text || text.length <= max) return text || '';
-  const cut = text.slice(0, max - 1);
-  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:.\s]+$/, '') + '…';
+function setJsonLd(data) {
+  let el = document.head.querySelector('script[data-seo="ld"]');
+  if (!data || !data.length) {
+    if (el) el.remove();
+    return;
+  }
+  if (!el) {
+    el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.setAttribute('data-seo', 'ld');
+    document.head.appendChild(el);
+  }
+  el.textContent = jsonSafe(data);
 }
 
-export default function Seo({ title, description, noindex = false }) {
+export default function Seo({ title, description, noindex = false, image, type = 'website', jsonLd }) {
   const { pathname } = useLocation();
 
-  useEffect(() => {
-    const base = profile.siteUrl.replace(/\/$/, '');
-    const url = base + (pathname === '/' ? '/' : pathname.replace(/\/$/, ''));
-    const desc = shorten(description);
+  // Build step: remember what this page wants in its head.
+  if (typeof document === 'undefined') {
+    globalThis.__SEO__ = { title, description, noindex, image, type, jsonLd, pathname };
+  }
 
-    document.title = title;
-    setMeta('meta[name="description"]', 'name', 'description', desc);
-    setCanonical(url);
-    setMeta('meta[property="og:title"]', 'property', 'og:title', title);
-    setMeta('meta[property="og:description"]', 'property', 'og:description', desc);
-    setMeta('meta[property="og:url"]', 'property', 'og:url', url);
-    setMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title);
-    setMeta('meta[name="twitter:description"]', 'name', 'twitter:description', desc);
-    setMeta('meta[name="robots"]', 'name', 'robots', noindex ? 'noindex, follow' : 'index, follow');
-  }, [title, description, noindex, pathname]);
+  const ld = jsonLd ? JSON.stringify(jsonLd) : '';
+  useEffect(() => {
+    const t = seoTags({ title, description, noindex, image, type, pathname });
+    document.title = t.title;
+    setCanonical(t.url);
+    for (const [attr, key, value] of t.meta) setMeta(attr, key, value);
+    setJsonLd(ld ? JSON.parse(ld) : null);
+  }, [title, description, noindex, image, type, pathname, ld]);
 
   return null;
 }
