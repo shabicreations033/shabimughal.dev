@@ -375,7 +375,7 @@ const profile = {
     {
       institution: 'University of Central Punjab',
       degree: 'BS Computer Science',
-      years: '2023–2026',
+      years: '2022–2026',
     },
     {
       institution: 'Punjab Group of Colleges',
