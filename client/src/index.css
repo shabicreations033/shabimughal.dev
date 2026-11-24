@@ -223,7 +223,9 @@ textarea:focus-visible {
 
 /* ===================== Route fade transition ===================== */
 .route-fade {
-  animation: routeIn 0.6s var(--ease) both;
+  /* 'backwards' (not 'both') and an end state of transform: none, so no stacking context is left on <main>
+     after the fade: the hero title's blend-mode then blends with the page, not an empty layer. */
+  animation: routeIn 0.6s var(--ease) backwards;
 }
 @keyframes routeIn {
   from {
@@ -240,7 +242,10 @@ textarea:focus-visible {
 .site-header {
   position: static;
   z-index: 100;
-  background: transparent;
+  /* Solid, so the dot-grid page background (.dotfield) does not show behind the navbar.
+     flow-root keeps the bar's top margin inside the header. */
+  background: var(--bg);
+  display: flow-root;
 }
 .site-header-bar {
   position: relative;
@@ -585,10 +590,8 @@ html.theme-switching *:not(.theme-toggle):not(.theme-toggle *)::after {
   min-height: clamp(34rem, 78vh, 60rem);
   display: grid;
   grid-template-columns: 1fr;
-  isolation: isolate;
-  /* Needs a real painted background (not "transparent") so the blend-mode on
-     .hero-name has something to calculate against. A flat colour is enough. */
-  background: var(--bg);
+  /* No background and no isolation here: the dot-grid page background (.dotfield) shows through
+     behind the portrait, and .hero-name's blend-mode blends with the page itself. */
 }
 
 /* ===================== Hero watermark (looping title text) ===================== */
@@ -1723,7 +1726,7 @@ section {
 }
 @keyframes selectDropIn {
   from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: none; }
 }
 .custom-select-option {
   padding: 0.625rem 0.75rem;
@@ -3585,11 +3588,11 @@ html.has-custom-cursor textarea {
 
 /* Page-to-page fade */
 .route-fade {
-  animation: routeIn 0.45s var(--ease) both;
+  animation: routeIn 0.45s var(--ease) backwards;
 }
 @keyframes routeIn {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: none; }
 }
 
 /* Press feedback: buttons settle back down when clicked */
@@ -3898,3 +3901,25 @@ html.has-custom-cursor textarea {
 }
 
 .pd-cover picture { display: block; width: 100%; height: 100%; }
+
+
+/* ---- Page background: faint dot grid + drifting orb (components/DotField.jsx) ----
+   The grid is pure CSS; the canvas inside only paints the dots near the orb and pointer.
+   z-index -1 keeps it behind all content and above the page colour. */
+.dotfield {
+  --dot-gap: 26px; /* keep in step with nothing else: DotField.jsx reads this value */
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle at center, color-mix(in srgb, var(--ink) 13%, transparent) 1px, transparent 1.4px);
+  background-size: var(--dot-gap) var(--dot-gap);
+}
+.dotfield canvas {
+  display: block;
+}
+@media (max-width: 640px) {
+  .dotfield {
+    --dot-gap: 22px;
+  }
+}

@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import PageCurtain from './components/PageCurtain';
 import ScrollProgress from './components/ScrollProgress';
 import Cursor from './components/Cursor';
+import DotField from './components/DotField';
 import BackToTop from './components/BackToTop';
 import PageTransition from './components/PageTransition';
 import Seo from './components/Seo';
@@ -28,6 +29,7 @@ export default function App() {
 
   return (
     <>
+      <DotField />
       <PageCurtain />
       <Header />
       <ScrollProgress />
