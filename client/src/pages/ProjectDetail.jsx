@@ -4,7 +4,8 @@ import Seo from '../components/Seo';
 import { pageGraph, projectNode } from '../lib/schema';
 import Reveal from '../components/Reveal';
 import Mask from '../components/Mask';
-import { coverFor, coverSources } from '../data/covers';
+import { coverFor, coverOg, coverSources } from '../data/covers';
+import metaDescriptions from '../data/metaDescriptions';
 import { galleryFor } from '../data/gallery';
 import ProjectGallery from '../components/ProjectGallery';
 
@@ -28,8 +29,8 @@ export default function ProjectDetail() {
     <>
       <Seo
         title={`${project.title} | Shabi Mughal`}
-        description={project.shortDescription}
-        image={coverFor(project)}
+        description={metaDescriptions[project.slug] || project.shortDescription}
+        image={coverOg(project)}
         type="article"
         jsonLd={pageGraph(
           [{ name: 'Home', path: '/' }, { name: 'Projects', path: '/projects' }, { name: project.title, path: `/projects/${project.slug}` }],

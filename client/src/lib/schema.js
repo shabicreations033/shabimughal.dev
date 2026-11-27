@@ -72,6 +72,17 @@ export function projectNode(project) {
   };
 }
 
+export function contactNode() {
+  return {
+    '@type': 'ContactPage',
+    '@id': `${SITE}/contact#page`,
+    url: `${SITE}/contact`,
+    name: `Contact ${profile.name}`,
+    about: { '@id': PERSON_ID },
+    isPartOf: { '@id': SITE_ID },
+  };
+}
+
 // Home page: the whole entity graph.
 export const homeGraph = () => [{ '@context': 'https://schema.org', '@graph': [personNode(), websiteNode()] }];
 

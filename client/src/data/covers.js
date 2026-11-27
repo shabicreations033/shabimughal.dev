@@ -33,3 +33,9 @@ export function coverSources(project) {
     webp: `${base}-800.webp 800w, ${base}-1200.webp 1200w, ${src} 1600w`,
   };
 }
+
+// 1200x630 JPEG for link previews (LinkedIn, Slack and some chat apps do not read WebP).
+export function coverOg(project) {
+  const src = coverFor(project);
+  return /^\/projects\/[^/]+\.webp$/.test(src) ? src.replace(/\.webp$/, '-og.jpg') : src;
+}

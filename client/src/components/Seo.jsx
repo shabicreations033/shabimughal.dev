@@ -15,11 +15,15 @@ import profile from '../data/profile';
 const SITE = profile.siteUrl.replace(/\/$/, '');
 export const DEFAULT_IMAGE = '/og-image.png';
 
-// Cut a long description at a word boundary so search results do not truncate it mid-word.
+// Keep a description within search-result length. Prefer ending on a full sentence; otherwise cut at a
+// word and close with a full stop, so no "…" shows up in the snippet.
 export function shorten(text, max = 158) {
   if (!text || text.length <= max) return text || '';
-  const cut = text.slice(0, max - 1);
-  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:.\s]+$/, '') + '…';
+  const head = text.slice(0, max);
+  const stop = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));
+  if (stop > max * 0.6) return head.slice(0, stop + 1);
+  const cut = head.slice(0, head.lastIndexOf(' ')).replace(/[,;:\u2013\u2014\-.\s]+$/, '');
+  return cut + '.';
 }
 
 export function canonicalFor(pathname) {
@@ -32,7 +36,7 @@ function absolute(src) {
 }
 
 // Everything the head needs, as a plain list of tags.
-export function seoTags({ title, description, noindex = false, image, type = 'website', pathname = '/' }) {
+export function seoTags({ title, description, noindex = false, image, imageAlt, type = 'website', pathname = '/' }) {
   const url = canonicalFor(pathname);
   const desc = shorten(description);
   const img = absolute(image);
@@ -48,10 +52,14 @@ export function seoTags({ title, description, noindex = false, image, type = 'we
       ['property', 'og:description', desc],
       ['property', 'og:url', url],
       ['property', 'og:image', img],
+      ...(/(-og\.jpg|og-image\.png)$/.test(img) ? [['property', 'og:image:width', '1200'], ['property', 'og:image:height', '630']] : []),
+      ['property', 'og:image:alt', imageAlt || title],
+      ['property', 'og:locale', 'en_US'],
       ['name', 'twitter:card', 'summary_large_image'],
       ['name', 'twitter:title', title],
       ['name', 'twitter:description', desc],
       ['name', 'twitter:image', img],
+      ['name', 'twitter:image:alt', imageAlt || title],
     ],
   };
 }

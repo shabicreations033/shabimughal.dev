@@ -29,13 +29,14 @@ export default function App() {
 
   return (
     <>
+      <a className="skip-link" href="#main">Skip to content</a>
       <DotField />
       <PageCurtain />
       <Header />
       <ScrollProgress />
       <Cursor />
       <PageTransition />
-      <main key={location.pathname} className="route-fade">
+      <main id="main" tabIndex={-1} key={location.pathname} className="route-fade">
         <Routes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />

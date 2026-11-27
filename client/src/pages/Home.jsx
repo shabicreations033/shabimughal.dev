@@ -11,7 +11,7 @@ import SocialIcons from '../components/SocialIcons';
 import ThemeToggle from '../components/ThemeToggle';
 import { whenCurtainLifts } from '../components/PageCurtain';
 import profile from '../data/profile';
-import { coverFor, coverThumb } from '../data/covers';
+import { coverFor, coverThumb, coverSources } from '../data/covers';
 import useTheme from '../hooks/useTheme';
 import { HERO } from '../lib/heroImage';
 import { homeGraph } from '../lib/schema';
@@ -70,7 +70,7 @@ export default function Home() {
             </div>
           </div>
 
-          <h1 className="hero-name" aria-label={profile.title}>
+          <h1 className="hero-name" aria-label={`${profile.name}, ${profile.title}`}>
             {titleLines.map((line) => (
               <span className="word" key={line} aria-hidden="true">
                 <span>{line}</span>
@@ -160,7 +160,14 @@ export default function Home() {
           <Reveal as="div" className="project-grid stagger">
             {projects.map((p, i) => (
               <Link key={p.slug} to={`/projects/${p.slug}`} className="project-card">
-                <div className="thumb" style={coverFor(p) ? { '--cover': `url(${coverThumb(p)})` } : undefined} />
+                <div className="thumb" aria-hidden="true">
+                  {coverFor(p) && (
+                    <picture>
+                      {coverSources(p) && <source type="image/avif" srcSet={coverSources(p).avif} sizes="(max-width: 700px) 100vw, 480px" />}
+                      <img src={coverThumb(p)} srcSet={coverSources(p) ? coverSources(p).webp : undefined} sizes="(max-width: 700px) 100vw, 480px" alt="" width="800" height="450" loading="lazy" decoding="async" />
+                    </picture>
+                  )}
+                </div>
                 <span className="p-index">{String(i + 1).padStart(2, '0')}</span>
                 <div>
                   <h3 className="p-title">{p.title}</h3>

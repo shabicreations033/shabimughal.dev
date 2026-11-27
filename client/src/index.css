@@ -2451,10 +2451,17 @@ section {
 .project-card .thumb {
   background-color: var(--ink);
 }
-.project-card .thumb[style*="--cover"] {
-  background-image: linear-gradient(rgba(5, 5, 32, 0.72), rgba(5, 5, 32, 0.72)), var(--cover);
-  background-size: cover;
-  background-position: center;
+.project-card .thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.project-card .thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 32, 0.72);
 }
 /* Projects page strip: same treatment on hover. */
 .coverflow-card.has-cover:hover {
@@ -3922,4 +3929,27 @@ html.has-custom-cursor textarea {
   .dotfield {
     --dot-gap: 22px;
   }
+}
+
+/* Skip link: hidden until a keyboard user tabs to it */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 10000;
+  padding: 10px 16px;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible {
+  transform: none;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+main:focus {
+  outline: none;
 }
